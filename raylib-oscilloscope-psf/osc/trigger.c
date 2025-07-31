@@ -88,8 +88,7 @@ void update_trigger_indices(OscData *oscData) {
         // Перевіряємо, чи канал активний, чи активний тригер і чи є дані історії сигналу
         if (ch->active && ch->trigger_active && ch->channel_history != NULL) {
             // Обчислюємо рівень тригера у пікселях відносно висоти робочої області
-            // float trigger_level_px = ch->trigger_level * WORKSPACE_HEIGHT;
-            float trigger_level_px = ch->trigger_level;
+            float trigger_level_px = ch->trigger_level * WORKSPACE_HEIGHT;
 
             // Виконуємо пошук позиції фронту тригера з урахуванням гістерезису та типу фронту
             int new_trigger_index = find_trigger_index_with_hysteresis(

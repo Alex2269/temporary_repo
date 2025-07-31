@@ -109,7 +109,7 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
                      "Trigger\nlevel",
                      NULL/*TextFormat("%0.1f", Ch->trigger_level)*/,
                      knob_radius,
-                     &Ch->trigger_level, 0.0f, 550.0f, true, activeColor);
+                     &Ch->trigger_level, 0.0f, 1.0f, true, activeColor);
 
     // зберігаємо позицію тригера
     trigger_y_position = Ch->trigger_level;
@@ -124,11 +124,11 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
                      &Ch->trigger_hysteresis_px, -1.0f, 1.0f, true, activeColor);
 
     // Малювання горизонтальної лінії тригера (якщо тригер активний)
-    // if (Ch->active && Ch->trigger_active) {
-    //     float trigger_level_px = Ch->trigger_level * WORKSPACE_HEIGHT;
-    //     float y_trigger = /*osc_height / 2 +*/ Ch->offset_y - trigger_level_px * Ch->scale_y;
-    //     DrawLine(0, (int)y_trigger, panelX, (int)y_trigger, activeColor);
-    // }
+    if (Ch->active && Ch->trigger_active) {
+        float trigger_level_px = Ch->trigger_level * WORKSPACE_HEIGHT;
+        float y_trigger = /*osc_height / 2 +*/ Ch->offset_y - trigger_level_px * Ch->scale_y;
+        DrawLine(0, (int)y_trigger, panelX, (int)y_trigger, activeColor);
+    }
 
     // Малювання вертикальної лінії тригера (сканування по горизонталі)
     if (Ch->active && Ch->channel_history != NULL) {
@@ -376,12 +376,12 @@ void GuiControlPanelRender(OscData *oscData)
     Color activeColor = channel_colors[ch];
     ChannelSettings *Ch = &oscData->channels[ch];
 
-    int x_start = 50;  // Піксельна горизонтальна позиція початку лінії тригера
-    int x_end = 300;   // Піксельна горизонтальна позиція кінця
+    int x_start = 25;  // Піксельна горизонтальна позиція початку лінії тригера
+    int x_end = 75;  // Піксельна горизонтальна позиція кінця
     Color trigger_color = activeColor;
 
     // Обчислення піксельної позиції лінії тригера для малювання:
-    int pixel_y = (int)(Ch->offset_y - Ch->trigger_level * Ch->scale_y);
+    int pixel_y = (int)(Ch->offset_y - (Ch->trigger_level * WORKSPACE_HEIGHT) * Ch->scale_y);
 
     // Обробка початку перетягування (клік поруч із лінією тригера)
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
@@ -408,7 +408,7 @@ void GuiControlPanelRender(OscData *oscData)
             if (mouseY > bottom_limit) mouseY = bottom_limit;
 
             // Конвертуємо піксельну координату назад в логічну:
-            trigger_y_position = (Ch->offset_y - (float)mouseY) / Ch->scale_y;
+            trigger_y_position = (Ch->offset_y - (float)mouseY) / Ch->scale_y / WORKSPACE_HEIGHT;
         }
         else
         {
@@ -421,7 +421,7 @@ void GuiControlPanelRender(OscData *oscData)
     DrawLine(x_start, pixel_y, x_end, pixel_y, trigger_color);
 
     // Малюємо маркер (ручку) для кращої видимості і зручності перетягування
-    DrawCircle(x_end, pixel_y, 5, trigger_color);
+    DrawCircle(x_start, pixel_y, 5, trigger_color);
 
     // Якщо хочете, зв'яжіть слайдер з trigger_y_position (значення у логічних координатах).
     // Слайдер повинен теж відображатися на тій самій лінії, трансформуючи trigger_y_position у пікселі.
