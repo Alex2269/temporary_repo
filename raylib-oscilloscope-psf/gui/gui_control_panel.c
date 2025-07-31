@@ -370,69 +370,82 @@ void write_usb_device(OscData *data, unsigned char* str, size_t len)
 
 void GuiControlPanelRender(OscData *oscData)
 {
-    // Вхідні параметри (припустимо, у вас є структура для каналу з offset_y і scale_y)
-    // extern Channel *Ch; // або як у вас організовано
+    // Отримати активний канал та його налаштування
     int ch = oscData->active_channel;
     Color activeColor = channel_colors[ch];
     ChannelSettings *Ch = &oscData->channels[ch];
 
-    int x_start = 25;  // Піксельна горизонтальна позиція початку лінії тригера
-    int x_end = 75;  // Піксельна горизонтальна позиція кінця
+    // Задаємо фіксовані координати лінії тригера по горизонталі (X)
+    int x_start = 25;
+    int x_end = 75;
+
+    // Колір для лінії та ручки
     Color trigger_color = activeColor;
 
-    // Обчислення піксельної позиції лінії тригера для малювання:
+    // Обчислення поточної вертикальної позиції тригера в пікселях для малювання
     int pixel_y = (int)(Ch->offset_y - (Ch->trigger_level * WORKSPACE_HEIGHT) * Ch->scale_y);
 
-    // Обробка початку перетягування (клік поруч із лінією тригера)
+    // Задаємо радіус для логіки захоплення (більший - зона кліку ширша)
+    int handle_capture_radius = 12;
+
+    // І радіус для малювання ручки (менший - щоб візуально ручка залишалась компактною)
+    int handle_draw_radius = 5;
+
+    // ОБРОБКА ПОЧАТКУ ПЕРЕТЯГУВАННЯ
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
+        int mouseX = GetMouseX();
         int mouseY = GetMouseY();
-        if (abs(mouseY - pixel_y) < 10)  // допустима похибка 10 пікселів
+
+        // Перевірка, чи курсор у межах збільшеної зони захоплення навколо ручки (коло з радіусом handle_capture_radius)
+        int dx = mouseX - x_start;
+        int dy = mouseY - pixel_y;
+
+        if (dx*dx + dy*dy <= handle_capture_radius * handle_capture_radius)
         {
             dragging_trigger_line = true;
         }
     }
 
-    // Відстеження руху миші при перетягуванні
+    // ОБРОБКА ПЕРЕТЯГУВАННЯ
     if (dragging_trigger_line)
     {
         if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
         {
             int mouseY = GetMouseY();
 
-            // Обмеження руху у пікселях (в межах вікна чи області малювання)
-            // Припустимо ваш графік у пікселях від top_limit до bottom_limit:
+            // Обмеження вертикального руху в межах робочої області
             int top_limit = 5;
             int bottom_limit = 595;
+
             if (mouseY < top_limit) mouseY = top_limit;
             if (mouseY > bottom_limit) mouseY = bottom_limit;
 
-            // Конвертуємо піксельну координату назад в логічну:
+            // Конвертація піксельної координати у логічну позицію тригера (0..1)
             trigger_y_position = (Ch->offset_y - (float)mouseY) / Ch->scale_y / WORKSPACE_HEIGHT;
+
+            // Оновлення рівня тригера в каналі
+            Ch->trigger_level = trigger_y_position;
         }
         else
         {
-            // Завершення перетягування
+            // Кінець перетягування при відпусканні кнопки миші
             dragging_trigger_line = false;
         }
     }
+    else
+    {
+        // Синхронізація локальної позиції з поточним значенням рівня тригера
+        trigger_y_position = Ch->trigger_level;
+    }
 
-    // Малюємо саму лінію тригера на піксельній позиції
+    // Оновлення піксельної позиції для малювання після впливу перетягування
+    pixel_y = (int)(Ch->offset_y - (trigger_y_position * WORKSPACE_HEIGHT) * Ch->scale_y);
+
+    // МАЛЮВАННЯ ЛІНІЇ ТРИГЕРА (горизонтальна, зафіксована по X)
     DrawLine(x_start, pixel_y, x_end, pixel_y, trigger_color);
 
-    // Малюємо маркер (ручку) для кращої видимості і зручності перетягування
-    DrawCircle(x_start, pixel_y, 5, trigger_color);
-
-    // Якщо хочете, зв'яжіть слайдер з trigger_y_position (значення у логічних координатах).
-    // Слайдер повинен теж відображатися на тій самій лінії, трансформуючи trigger_y_position у пікселі.
-
-    Ch->trigger_level = trigger_y_position;
-
-    // trigger_y_position =
-    // Gui_Slider((Rectangle){4, 0, 6, 600},
-    //            font24, NULL, NULL,
-    //            /* &Ch->trigger_level*/
-    //            &Ch->trigger_level,
-    //            0.0f, 550.0f, 1, WHITE);
+    // МАЛЮВАННЯ РУЧКИ (маркер) із меншим радіусом для збереження звичного вигляду
+    DrawCircle(x_start, pixel_y, handle_draw_radius, trigger_color);
 }
 
