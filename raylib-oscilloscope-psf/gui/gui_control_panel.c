@@ -6,7 +6,8 @@
 #include "button.h"
 #include "guicheckbox.h"
 #include "sliders.h"
-// #include "sliders_ex.h"
+// #include "slider_widget_ellipse.h"
+#include "slider_widget_circle.h"
 #include "slider_widget.h"
 #include "knob_gui.h"
 #include "gui_spinner.h"
@@ -282,13 +283,25 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
     // Gui_SliderEx(2, sliderBounds, font18, NULL, NULL, &oscData->channels[2].offset_y, 700.0f, 0.0f, true, RED);
     // Gui_SliderEx(3, sliderBounds, font18, NULL, NULL, &oscData->channels[3].offset_y, 700.0f, 0.0f, true, SKYBLUE);
 
-    RegisterSlider(0, sliderBounds, &oscData->channels[0].offset_y, 700.0f, 0.0f, true, YELLOW, NULL, NULL);
-    RegisterSlider(1, sliderBounds, &oscData->channels[1].offset_y, 700.0f, 0.0f, true, GREEN, NULL, NULL);
-    RegisterSlider(2, sliderBounds, &oscData->channels[2].offset_y, 700.0f, 0.0f, true, RED, NULL, NULL);
-    RegisterSlider(3, sliderBounds, &oscData->channels[3].offset_y, 700.0f, 0.0f, true, SKYBLUE, NULL, NULL);
+    // RegisterSlider(0, sliderBounds, &Ch->offset_y, 700.0f, 0.0f, true, WHITE, NULL, NULL);
+    RegisterSlider(0, sliderBounds, &oscData->channels[0].offset_y, 1200.0f, -200.0f, true, YELLOW, NULL, NULL);
+    RegisterSlider(1, sliderBounds, &oscData->channels[1].offset_y, 1200.0f, -200.0f, true, GREEN, NULL, NULL);
+    RegisterSlider(2, sliderBounds, &oscData->channels[2].offset_y, 1200.0f, -200.0f, true, RED, NULL, NULL);
+    RegisterSlider(3, sliderBounds, &oscData->channels[3].offset_y, 1200.0f, -200.0f, true, SKYBLUE, NULL, NULL);
 
     // Централізована функція, яка обробляє взаємодію і малює всі слайдери
     UpdateSlidersAndDraw(font18, 2);
+
+    // Оновлюємо та реєструємо стан слайдерів
+    Rectangle Bounds = { sliderX - 50, 20, 6, sliderHeight };
+    // RegisterCircleKnobSlider(0, Bounds, &Ch->scale_y, 0.10f, 2.0f, true, WHITE, NULL, NULL);
+    RegisterCircleKnobSlider(0, Bounds, &oscData->channels[0].scale_y, 0.10f, 2.0f, true, YELLOW, NULL, NULL);
+    RegisterCircleKnobSlider(1, Bounds, &oscData->channels[1].scale_y, 0.10f, 2.0f, true, GREEN, NULL, NULL);
+    RegisterCircleKnobSlider(2, Bounds, &oscData->channels[2].scale_y, 0.10f, 2.0f, true, RED, NULL, NULL);
+    RegisterCircleKnobSlider(3, Bounds, &oscData->channels[3].scale_y, 0.10f, 2.0f, true, SKYBLUE, NULL, NULL);
+
+    // Централізована функція, яка обробляє взаємодію і малює всі слайдери
+    UpdateCircleKnobSlidersAndDraw(font18, 2);
 
     // Аналогічно інші слайдери для offset_y, trigger_level і т.д.
 }
