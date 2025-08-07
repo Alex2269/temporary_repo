@@ -9,7 +9,7 @@
 #define MAX_SLIDERS 16
 
 // Радіус круглої ручки в пікселях
-#define SLIDER_KNOB_RADIUS 8
+#define SLIDER_KNOB_RADIUS 4
 
 // Зона в пікселях навколо ручки, в якій вважаємо мишу "біля ручки"
 #define CAPTURE_RADIUS 12
@@ -261,9 +261,9 @@ void UpdateCircleKnobSlidersAndDraw(PSF_Font font, int spacing)
         float normVal = (*slider->value - slider->minValue) / (slider->maxValue - slider->minValue);
 
         // Малюємо напівпрозорий фон слайдера
-        DrawRectangleRec(slider->bounds, Fade(slider->baseColor, 0.20f));
+        DrawRectangleRec(slider->bounds, Fade(slider->baseColor, 0.10f));
         // Малюємо контрастну рамку
-        DrawRectangleLinesEx(slider->bounds, 1, GetContrastingColor(slider->baseColor));
+        // DrawRectangleLinesEx(slider->bounds, 1, GetContrastingColor(slider->baseColor));
 
         Color knobColor = slider->baseColor;
         // Підсвічуємо ручку при наведенні миші, якщо вона не активна
