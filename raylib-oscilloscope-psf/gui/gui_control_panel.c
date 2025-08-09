@@ -101,7 +101,7 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
                      "Vertical\noffset",
                      NULL/*TextFormat("%d", (int)Ch->offset_y)*/,
                      knob_radius,
-                     &Ch->offset_y, -600.0f, 600.0f, true, activeColor);
+                     &Ch->offset_y, -550.0f, 550.0f, true, activeColor);
 
     sliderY += spacingY;
 
@@ -287,7 +287,7 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
     //         &Ch->offset_y, 550.0f, 0.0f, true, activeColor);
 
     int sliderWidth = 10;
-    int sliderHeight = 560;
+    int sliderHeight = 550;
     Rectangle sliderBounds = { sliderX - 35, 20, sliderWidth, sliderHeight };
     // Gui_SliderEx(0, sliderBounds, font18, NULL, NULL, &oscData->channels[0].offset_y, 700.0f, 0.0f, true, YELLOW);
     // Gui_SliderEx(1, sliderBounds, font18, NULL, NULL, &oscData->channels[1].offset_y, 700.0f, 0.0f, true, GREEN);
@@ -295,10 +295,10 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
     // Gui_SliderEx(3, sliderBounds, font18, NULL, NULL, &oscData->channels[3].offset_y, 700.0f, 0.0f, true, SKYBLUE);
 
     // RegisterSlider(0, sliderBounds, &Ch->offset_y, 700.0f, 0.0f, true, WHITE, NULL, NULL);
-    RegisterSlider(0, sliderBounds, &oscData->channels[0].offset_y, 600.0f, -600.0f, true, YELLOW, NULL, NULL);
-    RegisterSlider(1, sliderBounds, &oscData->channels[1].offset_y, 600.0f, -600.0f, true, GREEN, NULL, NULL);
-    RegisterSlider(2, sliderBounds, &oscData->channels[2].offset_y, 600.0f, -600.0f, true, RED, NULL, NULL);
-    RegisterSlider(3, sliderBounds, &oscData->channels[3].offset_y, 600.0f, -600.0f, true, SKYBLUE, NULL, NULL);
+    RegisterSlider(0, sliderBounds, &oscData->channels[0].offset_y, 550.0f, -550.0f, true, YELLOW, NULL, NULL);
+    RegisterSlider(1, sliderBounds, &oscData->channels[1].offset_y, 550.0f, -550.0f, true, GREEN, NULL, NULL);
+    RegisterSlider(2, sliderBounds, &oscData->channels[2].offset_y, 550.0f, -550.0f, true, RED, NULL, NULL);
+    RegisterSlider(3, sliderBounds, &oscData->channels[3].offset_y, 550.0f, -550.0f, true, SKYBLUE, NULL, NULL);
 
     // Централізована функція, яка обробляє взаємодію і малює всі слайдери
     UpdateSlidersAndDraw(font18, 2);
