@@ -1,3 +1,5 @@
+// stm32f1xx_ll_usb.c
+
 #include "stm32f1xx_hal_pcd.h"
 
 #define PMA_ACCESS 2U // Коефіцієнт доступу до памʼяті PMA
