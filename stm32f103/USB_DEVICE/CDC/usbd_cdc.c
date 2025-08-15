@@ -414,7 +414,7 @@ USBD_SetupReqTypedef *req)
   USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef *) pdev->pClassData;
   uint8_t ifalt = 0U;
   uint16_t status_info = 0U;
-  uint8_t ret = USBD_OK;;
+  uint8_t ret = USBD_OK;
   switch (req->bmRequest & USB_REQ_TYPE_MASK)
   {
     case USB_REQ_TYPE_CLASS :
@@ -510,7 +510,7 @@ static uint8_t USBD_CDC_DataIn(USBD_HandleTypeDef *pdev, uint8_t epnum)
     {
       hcdc->TxState = 0U;
     }
-    return USBD_OK;;
+    return USBD_OK;
   }
   else
   {
@@ -535,7 +535,7 @@ static uint8_t USBD_CDC_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum)
   if (pdev->pClassData != NULL)
   {
     ((USBD_CDC_ItfTypeDef *)pdev->pUserData)->Receive(hcdc->RxBuffer, &hcdc->RxLength);
-    return USBD_OK;;
+    return USBD_OK;
   }
   else
   {
@@ -559,7 +559,7 @@ static uint8_t USBD_CDC_EP0_RxReady(USBD_HandleTypeDef *pdev)
     (uint16_t)hcdc->CmdLength);
     hcdc->CmdOpCode = 0xFFU;
   }
-  return USBD_OK;;
+  return USBD_OK;
 }
 
 /**
@@ -625,7 +625,7 @@ uint8_t USBD_CDC_RegisterInterface(USBD_HandleTypeDef *pdev, USBD_CDC_ItfTypeDef
   if (fops != NULL)
   {
     pdev->pUserData = fops;
-    ret = USBD_OK;;
+    ret = USBD_OK;
   }
   return ret;
 }
@@ -641,7 +641,7 @@ uint8_t USBD_CDC_SetTxBuffer(USBD_HandleTypeDef *pdev, uint8_t *pbuff, uint16_t 
   USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef *) pdev->pClassData;
   hcdc->TxBuffer = pbuff;
   hcdc->TxLength = length;
-  return USBD_OK;;
+  return USBD_OK;
 }
 
 /**
@@ -654,7 +654,7 @@ uint8_t USBD_CDC_SetRxBuffer(USBD_HandleTypeDef *pdev, uint8_t *pbuff)
 {
   USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef *) pdev->pClassData;
   hcdc->RxBuffer = pbuff;
-  return USBD_OK;;
+  return USBD_OK;
 }
 
 /**
@@ -677,7 +677,7 @@ uint8_t USBD_CDC_TransmitPacket(USBD_HandleTypeDef *pdev)
       /* Transmit next packet */
       USBD_LL_Transmit(pdev, CDC_IN_EP, hcdc->TxBuffer,
       (uint16_t)hcdc->TxLength);
-      return USBD_OK;;
+      return USBD_OK;
     }
     else
     {
@@ -718,7 +718,7 @@ uint8_t USBD_CDC_ReceivePacket(USBD_HandleTypeDef *pdev)
       hcdc->RxBuffer,
       CDC_DATA_FS_OUT_PACKET_SIZE);
     }
-    return USBD_OK;;
+    return USBD_OK;
   }
   else
   {
