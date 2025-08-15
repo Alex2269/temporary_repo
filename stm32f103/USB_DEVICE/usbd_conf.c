@@ -93,7 +93,6 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef * pdev)
   */
 USBD_StatusTypeDef USBD_LL_DeInit(USBD_HandleTypeDef * pdev)
 {
-  USBD_PCD_DeInit((PCD_HandleTypeDef *) pdev->pData);
   return USBD_OK;;
 }
 

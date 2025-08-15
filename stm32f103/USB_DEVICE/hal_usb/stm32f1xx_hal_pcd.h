@@ -103,7 +103,7 @@ static inline void USBD_PCD_TX_DTOG(USB_TypeDef* USBx, uint8_t bEpNum);
 // static inline void USBD_PCD_CLEAR_TX_DTOG(USB_TypeDef* USBx, uint8_t bEpNum);
 
 USBD_StatusTypeDef USBD_PCD_Init(PCD_HandleTypeDef *hpcd);
-USBD_StatusTypeDef USBD_PCD_DeInit(PCD_HandleTypeDef *hpcd);
+
 void USBD_PCD_MspInit(PCD_HandleTypeDef *hpcd);
 void USBD_PCD_MspDeInit(PCD_HandleTypeDef *hpcd);
 
