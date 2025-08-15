@@ -1,4 +1,5 @@
 // usbd_ctlreq.c
+
 // Обробка стандартних USB-запитів (Device, Interface, Endpoint) для STM32 USB пристрою
 
 #include "usbd_ctlreq.h"

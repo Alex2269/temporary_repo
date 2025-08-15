@@ -1,3 +1,4 @@
+// usbd_conf.c
 
 #include "stm32f1xx.h"
 #include "usbd_def.h"

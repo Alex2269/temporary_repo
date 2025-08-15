@@ -1,3 +1,4 @@
+// usbd_desc.c
 
 #include "usbd_core.h"
 #include "usbd_desc.h"
