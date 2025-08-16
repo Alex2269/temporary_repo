@@ -63,40 +63,6 @@ typedef struct
 } PCD_HandleTypeDef;
 
 
-#define USBD_PCD_SPEED_FULL               USBD_FS_SPEED
-
-#define USBD_PCD_PHY_ULPI                 1U
-#define USBD_PCD_PHY_EMBEDDED             2U
-#define USBD_PCD_PHY_UTMI                 3U
-
-#define __USBD_PCD_ENABLE(__HANDLE__)                       (void)USB_EnableGlobalInt ((__HANDLE__)->Instance)
-#define __USBD_PCD_DISABLE(__HANDLE__)                      (void)USB_DisableGlobalInt ((__HANDLE__)->Instance)
-
-#define __USBD_PCD_GET_FLAG(__HANDLE__, __INTERRUPT__) \
-  ((USB_ReadInterrupts((__HANDLE__)->Instance) & (__INTERRUPT__)) == (__INTERRUPT__))
-
-#if defined (USB)
-#define __USBD_PCD_CLEAR_FLAG(__HANDLE__, __INTERRUPT__)           (((__HANDLE__)->Instance->ISTR)\
-                                                                   &= (uint16_t)(~(__INTERRUPT__)))
-
-#define USB_WAKEUP_EXTI_LINE                                     (0x1U << 18)  /*!< USB FS EXTI Line WakeUp Interrupt */
-
-#define __HAL_USB_WAKEUP_EXTI_ENABLE_IT()                         EXTI->IMR |= USB_WAKEUP_EXTI_LINE
-#define __HAL_USB_WAKEUP_EXTI_DISABLE_IT()                        EXTI->IMR &= ~(USB_WAKEUP_EXTI_LINE)
-#define __HAL_USB_WAKEUP_EXTI_GET_FLAG()                          EXTI->PR & (USB_WAKEUP_EXTI_LINE)
-#define __HAL_USB_WAKEUP_EXTI_CLEAR_FLAG()                        EXTI->PR = USB_WAKEUP_EXTI_LINE
-
-
-static inline void
-__HAL_USB_WAKEUP_EXTI_ENABLE_RISING_EDGE(void)
-{
-  do {
-    EXTI->FTSR &= ~(USB_WAKEUP_EXTI_LINE);
-    EXTI->RTSR |= (USB_WAKEUP_EXTI_LINE);
-  } while(0U);
-}
-#endif /* defined (USB) */
-
 void USBD_PCD_MspInit(PCD_HandleTypeDef *hpcd);
 void USBD_PCD_MspDeInit(PCD_HandleTypeDef *hpcd);
 
@@ -127,7 +93,38 @@ static USBD_StatusTypeDef Handle_EP0_OUT_SETUP(PCD_HandleTypeDef *hpcd, uint16_t
 static USBD_StatusTypeDef Handle_OUT_Transfer(PCD_HandleTypeDef *hpcd, uint8_t epindex, uint16_t wEPVal);
 static USBD_StatusTypeDef Handle_IN_Transfer(PCD_HandleTypeDef *hpcd, uint8_t epindex, uint16_t wEPVal);
 
-#if defined (USB)
+
+#define USBD_PCD_SPEED_FULL               USBD_FS_SPEED
+
+#define USBD_PCD_PHY_ULPI                 1U
+#define USBD_PCD_PHY_EMBEDDED             2U
+#define USBD_PCD_PHY_UTMI                 3U
+
+#define __USBD_PCD_ENABLE(__HANDLE__)                       (void)USB_EnableGlobalInt ((__HANDLE__)->Instance)
+#define __USBD_PCD_DISABLE(__HANDLE__)                      (void)USB_DisableGlobalInt ((__HANDLE__)->Instance)
+
+#define __USBD_PCD_GET_FLAG(__HANDLE__, __INTERRUPT__) \
+  ((USB_ReadInterrupts((__HANDLE__)->Instance) & (__INTERRUPT__)) == (__INTERRUPT__))
+
+#define __USBD_PCD_CLEAR_FLAG(__HANDLE__, __INTERRUPT__)           (((__HANDLE__)->Instance->ISTR)\
+                                                                   &= (uint16_t)(~(__INTERRUPT__)))
+
+#define USB_WAKEUP_EXTI_LINE                                     (0x1U << 18)  /*!< USB FS EXTI Line WakeUp Interrupt */
+
+#define __HAL_USB_WAKEUP_EXTI_ENABLE_IT()                         EXTI->IMR |= USB_WAKEUP_EXTI_LINE
+#define __HAL_USB_WAKEUP_EXTI_DISABLE_IT()                        EXTI->IMR &= ~(USB_WAKEUP_EXTI_LINE)
+#define __HAL_USB_WAKEUP_EXTI_GET_FLAG()                          EXTI->PR & (USB_WAKEUP_EXTI_LINE)
+#define __HAL_USB_WAKEUP_EXTI_CLEAR_FLAG()                        EXTI->PR = USB_WAKEUP_EXTI_LINE
+
+
+static inline void
+__HAL_USB_WAKEUP_EXTI_ENABLE_RISING_EDGE(void)
+{
+  do {
+    EXTI->FTSR &= ~(USB_WAKEUP_EXTI_LINE);
+    EXTI->RTSR |= (USB_WAKEUP_EXTI_LINE);
+  } while(0U);
+}
 
 #define USBD_PCD_EP0MPS_64                                                 EP_MPS_64
 #define USBD_PCD_EP0MPS_32                                                 EP_MPS_32
@@ -705,9 +702,6 @@ static inline uint32_t
 USBD_PCD_GET_EP_RX_CNT(USB_TypeDef* USBx, uint8_t bEpNum) {
   return ((uint32_t)(*USBD_PCD_EP_RX_CNT((USBx), (bEpNum))) & 0x3ffU);
 }
-
-#endif /* defined (USB) */
-
 
 #endif /* defined (USB) */
 
