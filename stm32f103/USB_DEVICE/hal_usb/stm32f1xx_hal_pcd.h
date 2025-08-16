@@ -1,3 +1,4 @@
+// stm32f1xx_hal_pcd.h
 
 #ifndef STM32F1xx_USBD_PCD_H
 #define STM32F1xx_USBD_PCD_H
@@ -96,53 +97,35 @@ __HAL_USB_WAKEUP_EXTI_ENABLE_RISING_EDGE(void)
 }
 #endif /* defined (USB) */
 
-static inline void USBD_PCD_RX_DTOG(USB_TypeDef* USBx, uint8_t bEpNum);
-static inline void USBD_PCD_TX_DTOG(USB_TypeDef* USBx, uint8_t bEpNum);
-
-// static inline void USBD_PCD_CLEAR_RX_DTOG(USB_TypeDef* USBx, uint8_t bEpNum);
-// static inline void USBD_PCD_CLEAR_TX_DTOG(USB_TypeDef* USBx, uint8_t bEpNum);
-
-USBD_StatusTypeDef USBD_PCD_Init(PCD_HandleTypeDef *hpcd);
-
 void USBD_PCD_MspInit(PCD_HandleTypeDef *hpcd);
 void USBD_PCD_MspDeInit(PCD_HandleTypeDef *hpcd);
 
+static inline void USBD_PCD_RX_DTOG(USB_TypeDef* USBx, uint8_t bEpNum);
+static inline void USBD_PCD_TX_DTOG(USB_TypeDef* USBx, uint8_t bEpNum);
+
+// Основні функції керування PCD
+USBD_StatusTypeDef USBD_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd, uint16_t ep_addr, uint16_t ep_kind, uint32_t pmaadress);
+void USBD_PCD_IRQHandler(PCD_HandleTypeDef *hpcd);
+USBD_StatusTypeDef USBD_PCD_SetAddress(PCD_HandleTypeDef *hpcd, uint8_t address);
+USBD_StatusTypeDef USBD_PCD_Init(PCD_HandleTypeDef *hpcd);
 USBD_StatusTypeDef USBD_PCD_Start(PCD_HandleTypeDef *hpcd);
 USBD_StatusTypeDef USBD_PCD_Stop(PCD_HandleTypeDef *hpcd);
-void USBD_PCD_IRQHandler(PCD_HandleTypeDef *hpcd);
-void USBD_PCD_WKUP_IRQHandler(PCD_HandleTypeDef *hpcd);
-
-void USBD_PCD_SOFCallback(PCD_HandleTypeDef *hpcd);
-void USBD_PCD_SetupStageCallback(PCD_HandleTypeDef *hpcd);
-void USBD_PCD_ResetCallback(PCD_HandleTypeDef *hpcd);
-void USBD_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd);
-void USBD_PCD_ResumeCallback(PCD_HandleTypeDef *hpcd);
-void USBD_PCD_ConnectCallback(PCD_HandleTypeDef *hpcd);
-void USBD_PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd);
-
-void USBD_PCD_DataOutStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum);
-void USBD_PCD_DataInStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum);
-void USBD_PCD_ISOOUTIncompleteCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum);
-void USBD_PCD_ISOINIncompleteCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum);
-
-USBD_StatusTypeDef USBD_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd, uint16_t ep_addr, uint16_t ep_kind, uint32_t pmaadress);
-USBD_StatusTypeDef USBD_PCD_DevConnect(PCD_HandleTypeDef *hpcd);
-USBD_StatusTypeDef USBD_PCD_DevDisconnect(PCD_HandleTypeDef *hpcd);
-USBD_StatusTypeDef USBD_PCD_SetAddress(PCD_HandleTypeDef *hpcd, uint8_t address);
+USBD_StatusTypeDef USBD_PCD_EP_Flush(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
 USBD_StatusTypeDef USBD_PCD_EP_Open(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, uint16_t ep_mps, uint8_t ep_type);
 USBD_StatusTypeDef USBD_PCD_EP_Close(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
-USBD_StatusTypeDef USBD_PCD_EP_Receive(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, uint8_t *pBuf, uint32_t len);
-USBD_StatusTypeDef USBD_PCD_EP_Transmit(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, uint8_t *pBuf, uint32_t len);
 USBD_StatusTypeDef USBD_PCD_EP_SetStall(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
+USBD_StatusTypeDef USBD_PCD_EP_Transmit(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, uint8_t *pBuf, uint32_t len);
+USBD_StatusTypeDef USBD_PCD_EP_Receive(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, uint8_t *pBuf, uint32_t len);
+uint32_t USBD_PCD_EP_GetRxCount(const PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
 USBD_StatusTypeDef USBD_PCD_EP_ClrStall(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
-USBD_StatusTypeDef USBD_PCD_EP_Flush(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
-USBD_StatusTypeDef USBD_PCD_EP_Abort(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
-USBD_StatusTypeDef USBD_PCD_ActivateRemoteWakeup(PCD_HandleTypeDef *hpcd);
-USBD_StatusTypeDef USBD_PCD_DeActivateRemoteWakeup(PCD_HandleTypeDef *hpcd);
-uint32_t           USBD_PCD_EP_GetRxCount(PCD_HandleTypeDef const *hpcd, uint8_t ep_addr);
 
-USBD_PCD_StateTypeDef USBD_PCD_GetState(PCD_HandleTypeDef const *hpcd);
-
+// Прототипи внутрішніх статичних функцій (можна не додавати у заголовок,
+// якщо вони не використовуються поза файлом stm32f1xx_hal_pcd.c,
+// але для повноти тут наведені)
+static USBD_StatusTypeDef Handle_EP0_IN(PCD_HandleTypeDef *hpcd);
+static USBD_StatusTypeDef Handle_EP0_OUT_SETUP(PCD_HandleTypeDef *hpcd, uint16_t wIstr);
+static USBD_StatusTypeDef Handle_OUT_Transfer(PCD_HandleTypeDef *hpcd, uint8_t epindex, uint16_t wEPVal);
+static USBD_StatusTypeDef Handle_IN_Transfer(PCD_HandleTypeDef *hpcd, uint8_t epindex, uint16_t wEPVal);
 
 #if defined (USB)
 
