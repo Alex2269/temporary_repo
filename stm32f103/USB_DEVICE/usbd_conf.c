@@ -9,23 +9,6 @@ PCD_HandleTypeDef hpcd_USB_FS;
 
 void Error_Handler(void);
 
-void HAL_NVIC_SetPriority(IRQn_Type IRQn, uint32_t PreemptPriority, uint32_t SubPriority)
-{
-  uint32_t prioritygroup = 0x00U;
-  prioritygroup = NVIC_GetPriorityGrouping();
-  NVIC_SetPriority(IRQn, NVIC_EncodePriority(prioritygroup, PreemptPriority, SubPriority));
-}
-
-void HAL_NVIC_EnableIRQ(IRQn_Type IRQn)
-{
-  NVIC_EnableIRQ(IRQn);
-}
-
-void HAL_NVIC_DisableIRQ(IRQn_Type IRQn)
-{
-  NVIC_DisableIRQ(IRQn);
-}
-
 /* MSP Init */
 void USBD_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
 {
@@ -43,11 +26,8 @@ void USBD_PCD_MspDeInit(PCD_HandleTypeDef* pcdHandle)
 {
   if(pcdHandle->Instance==USB)
   {
-    /* Peripheral clock disable */
-    // RCC_USB_CLK_DISABLE();
     RCC->APB1ENR &= ~RCC_APB1ENR_USBEN;
-    /* Peripheral interrupt Deinit*/
-    HAL_NVIC_DisableIRQ(USB_LP_CAN1_RX0_IRQn);
+    NVIC_DisableIRQ(USB_LP_CAN1_RX0_IRQn);
   }
 }
 
@@ -83,7 +63,7 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef * pdev)
   USBD_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x01 , USBD_PCD_SNG_BUF, 0x110);
   USBD_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x82 , USBD_PCD_SNG_BUF, 0x100);
   /* USER CODE END EndPoint_Configuration_CDC */
-  return USBD_OK;;
+  return USBD_OK;
 }
 
 /**
@@ -93,7 +73,7 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef * pdev)
   */
 USBD_StatusTypeDef USBD_LL_DeInit(USBD_HandleTypeDef * pdev)
 {
-  return USBD_OK;;
+  return USBD_OK;
 }
 
 /**
@@ -104,7 +84,7 @@ USBD_StatusTypeDef USBD_LL_DeInit(USBD_HandleTypeDef * pdev)
 USBD_StatusTypeDef USBD_LL_Start(USBD_HandleTypeDef * pdev)
 {
   USBD_PCD_Start((PCD_HandleTypeDef *) pdev->pData);
-  return USBD_OK;;
+  return USBD_OK;
 }
 
 /**
@@ -115,7 +95,7 @@ USBD_StatusTypeDef USBD_LL_Start(USBD_HandleTypeDef * pdev)
 USBD_StatusTypeDef USBD_LL_Stop(USBD_HandleTypeDef * pdev)
 {
   USBD_PCD_Stop((PCD_HandleTypeDef *) pdev->pData);
-  return USBD_OK;;
+  return USBD_OK;
 }
 
 /**
@@ -131,7 +111,7 @@ USBD_StatusTypeDef USBD_LL_OpenEP(USBD_HandleTypeDef * pdev, uint8_t ep_addr,
 {
   USBD_PCD_EP_Open((PCD_HandleTypeDef *) pdev->pData, ep_addr, ep_mps, ep_type);
 
-  return USBD_OK;;
+  return USBD_OK;
 }
 
 /**
@@ -143,7 +123,7 @@ USBD_StatusTypeDef USBD_LL_OpenEP(USBD_HandleTypeDef * pdev, uint8_t ep_addr,
 USBD_StatusTypeDef USBD_LL_CloseEP(USBD_HandleTypeDef * pdev, uint8_t ep_addr)
 {
   USBD_PCD_EP_Close((PCD_HandleTypeDef *) pdev->pData, ep_addr);
-  return USBD_OK;;
+  return USBD_OK;
 }
 
 /**
@@ -155,7 +135,7 @@ USBD_StatusTypeDef USBD_LL_CloseEP(USBD_HandleTypeDef * pdev, uint8_t ep_addr)
 USBD_StatusTypeDef USBD_LL_FlushEP(USBD_HandleTypeDef * pdev, uint8_t ep_addr)
 {
   USBD_PCD_EP_Flush((PCD_HandleTypeDef *) pdev->pData, ep_addr);
-  return USBD_OK;;
+  return USBD_OK;
 }
 
 /**
@@ -167,7 +147,7 @@ USBD_StatusTypeDef USBD_LL_FlushEP(USBD_HandleTypeDef * pdev, uint8_t ep_addr)
 USBD_StatusTypeDef USBD_LL_StallEP(USBD_HandleTypeDef * pdev, uint8_t ep_addr)
 {
   USBD_PCD_EP_SetStall((PCD_HandleTypeDef *) pdev->pData, ep_addr);
-  return USBD_OK;;
+  return USBD_OK;
 }
 
 /**
@@ -179,7 +159,7 @@ USBD_StatusTypeDef USBD_LL_StallEP(USBD_HandleTypeDef * pdev, uint8_t ep_addr)
 USBD_StatusTypeDef USBD_LL_ClearStallEP(USBD_HandleTypeDef * pdev, uint8_t ep_addr)
 {
   USBD_PCD_EP_ClrStall((PCD_HandleTypeDef *) pdev->pData, ep_addr);
-  return USBD_OK;;
+  return USBD_OK;
 }
 
 /**
@@ -211,7 +191,7 @@ uint8_t USBD_LL_IsStallEP(USBD_HandleTypeDef * pdev, uint8_t ep_addr)
 USBD_StatusTypeDef USBD_LL_SetUSBAddress(USBD_HandleTypeDef * pdev, uint8_t dev_addr)
 {
   USBD_PCD_SetAddress((PCD_HandleTypeDef *) pdev->pData, dev_addr);
-  return USBD_OK;;
+  return USBD_OK;
 }
 
 /**
@@ -226,7 +206,7 @@ USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef * pdev, uint8_t ep_addr,
                                     uint8_t * pbuf, uint16_t size)
 {
   USBD_PCD_EP_Transmit((PCD_HandleTypeDef *) pdev->pData, ep_addr, pbuf, size);
-  return USBD_OK;;
+  return USBD_OK;
 }
 
 /**
@@ -241,7 +221,7 @@ USBD_StatusTypeDef USBD_LL_PrepareReceive(USBD_HandleTypeDef * pdev, uint8_t ep_
                                           uint8_t * pbuf, uint16_t size)
 {
   USBD_PCD_EP_Receive((PCD_HandleTypeDef *) pdev->pData, ep_addr, pbuf, size);
-  return USBD_OK;;
+  return USBD_OK;
 }
 
 /**
