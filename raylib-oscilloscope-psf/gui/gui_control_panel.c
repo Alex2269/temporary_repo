@@ -94,18 +94,14 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
                      TextFormat("Масштабування CH%d\nпо вертикалі", (int)oscData->active_channel + 1),
                      NULL/*TextFormat("%0.1f", Ch->scale_y)*/,
                      knob_radius,
-                     &Ch->scale_y, 0.2f, 2.2f, true, activeColor);
-    // Округлення до найближчого кратного 0.1f
-    Ch->scale_y = roundf(Ch->scale_y * 10.0f) / 10.0f;
+                     &Ch->scale_y, 0.1f, 2.0f, true, activeColor);
 
     // Зміщення по вертикалі
     Gui_Knob_Channel(1, sliderX + 234, sliderY,
                      "Vertical\noffset",
                      NULL/*TextFormat("%d", (int)Ch->offset_y)*/,
                      knob_radius,
-                     &Ch->offset_y, -550.0f, 550.0f, true, activeColor);
-
-    Ch->offset_y = (int)Ch->offset_y / 50 * 50; // встановлюємо крок 50
+                     &Ch->offset_y, -600.0f, 600.0f, true, activeColor);
 
     sliderY += spacingY;
 
@@ -239,12 +235,12 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
                 &oscData->reverse_signal,
                 font24 ,"Реверс\nсигналу", NULL, DARKGRAY);
 
-    static bool last_dynamic_mode = false;
     Gui_CheckBox((Rectangle){sliderX+120, sliderY, 30, 30},
                 &oscData->dynamic_buffer_mode,
                 font24 ,"Динамічний\nбуфер\npoints_to_display",
                 /*TextFormat(": %d",oscData->points_to_display)*/NULL, DARKGRAY);
 
+    static bool last_dynamic_mode = false;
     if (oscData->dynamic_buffer_mode != last_dynamic_mode) {
         int target_history_size = oscData->dynamic_buffer_mode ? oscData->points_to_display : 10000;
         setup_channel_buffers(oscData, target_history_size);
@@ -291,7 +287,7 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
     //         &Ch->offset_y, 550.0f, 0.0f, true, activeColor);
 
     int sliderWidth = 10;
-    int sliderHeight = 550;
+    int sliderHeight = 560;
     Rectangle sliderBounds = { sliderX - 35, 20, sliderWidth, sliderHeight };
     // Gui_SliderEx(0, sliderBounds, font18, NULL, NULL, &oscData->channels[0].offset_y, 700.0f, 0.0f, true, YELLOW);
     // Gui_SliderEx(1, sliderBounds, font18, NULL, NULL, &oscData->channels[1].offset_y, 700.0f, 0.0f, true, GREEN);
@@ -299,22 +295,21 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
     // Gui_SliderEx(3, sliderBounds, font18, NULL, NULL, &oscData->channels[3].offset_y, 700.0f, 0.0f, true, SKYBLUE);
 
     // RegisterSlider(0, sliderBounds, &Ch->offset_y, 700.0f, 0.0f, true, WHITE, NULL, NULL);
-    RegisterSlider(0, sliderBounds, &oscData->channels[0].offset_y, 550.0f, -550.0f, true, YELLOW, NULL, NULL);
-    RegisterSlider(1, sliderBounds, &oscData->channels[1].offset_y, 550.0f, -550.0f, true, GREEN, NULL, NULL);
-    RegisterSlider(2, sliderBounds, &oscData->channels[2].offset_y, 550.0f, -550.0f, true, RED, NULL, NULL);
-    RegisterSlider(3, sliderBounds, &oscData->channels[3].offset_y, 550.0f, -550.0f, true, SKYBLUE, NULL, NULL);
+    RegisterSlider(0, sliderBounds, &oscData->channels[0].offset_y, 600.0f, -600.0f, true, YELLOW, NULL, NULL);
+    RegisterSlider(1, sliderBounds, &oscData->channels[1].offset_y, 600.0f, -600.0f, true, GREEN, NULL, NULL);
+    RegisterSlider(2, sliderBounds, &oscData->channels[2].offset_y, 600.0f, -600.0f, true, RED, NULL, NULL);
+    RegisterSlider(3, sliderBounds, &oscData->channels[3].offset_y, 600.0f, -600.0f, true, SKYBLUE, NULL, NULL);
 
     // Централізована функція, яка обробляє взаємодію і малює всі слайдери
     UpdateSlidersAndDraw(font18, 2);
 
     // Оновлюємо та реєструємо стан слайдерів
     Rectangle Bounds = { sliderX - 50, 20, 6, sliderHeight };
-    float MinY = 0.2f, MaxY = 2.2f;
-    // RegisterCircleKnobSlider(0, Bounds, &Ch->scale_y, MinY, MaxY, true, WHITE, NULL, NULL);
-    RegisterCircleKnobSlider(0, Bounds, &oscData->channels[0].scale_y, MinY, MaxY, true, YELLOW, NULL, NULL);
-    RegisterCircleKnobSlider(1, Bounds, &oscData->channels[1].scale_y, MinY, MaxY, true, GREEN, NULL, NULL);
-    RegisterCircleKnobSlider(2, Bounds, &oscData->channels[2].scale_y, MinY, MaxY, true, RED, NULL, NULL);
-    RegisterCircleKnobSlider(3, Bounds, &oscData->channels[3].scale_y, MinY, MaxY, true, SKYBLUE, NULL, NULL);
+    // RegisterCircleKnobSlider(0, Bounds, &Ch->scale_y, 0.10f, 2.0f, true, WHITE, NULL, NULL);
+    RegisterCircleKnobSlider(0, Bounds, &oscData->channels[0].scale_y, 0.10f, 2.0f, true, YELLOW, NULL, NULL);
+    RegisterCircleKnobSlider(1, Bounds, &oscData->channels[1].scale_y, 0.10f, 2.0f, true, GREEN, NULL, NULL);
+    RegisterCircleKnobSlider(2, Bounds, &oscData->channels[2].scale_y, 0.10f, 2.0f, true, RED, NULL, NULL);
+    RegisterCircleKnobSlider(3, Bounds, &oscData->channels[3].scale_y, 0.10f, 2.0f, true, SKYBLUE, NULL, NULL);
 
     // Rectangle Bound = { 25, WORKSPACE_HEIGHT + 35, 600, 6 };
     // RegisterCircleKnobSlider(4, Bound, &oscData->trigger_offset_x,
