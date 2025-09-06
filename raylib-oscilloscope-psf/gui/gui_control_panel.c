@@ -240,22 +240,17 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
                 font24 ,"Динамічний\nбуфер\npoints_to_display",
                 /*TextFormat(": %d",oscData->points_to_display)*/NULL, DARKGRAY);
 
+    int intMin = 100, intMax = 10000;
+    bool changedInt = Gui_Spinner(0, sliderX+240, sliderY+15, 125, 25, NULL, NULL,
+                                     &oscData->points_to_display, &intMin, &intMax,
+                                     100, GUI_SPINNER_INT, BLUE, font18, spacing);
+
     static bool last_dynamic_mode = false;
     if (oscData->dynamic_buffer_mode != last_dynamic_mode) {
         oscData->points_to_display = oscData->dynamic_buffer_mode ? oscData->points_to_display : 10000;
         setup_channel_buffers(oscData);
         last_dynamic_mode = oscData->dynamic_buffer_mode;
     }
-
-    int intMin = 100, intMax = 10000;
-    bool changedInt = Gui_Spinner(0, sliderX+240, sliderY+15, 125, 25, NULL, NULL,
-                                     &oscData->points_to_display, &intMin, &intMax,
-                                     100, GUI_SPINNER_INT, BLUE, font18, spacing);
-
-    // bool changedInt = Gui_Spinner(0, sliderX+250, sliderY, 100, 15, NULL, NULL,
-    //                                &cuont_points, 100.0f, 10000.0f, 100,
-    //                                BLUE, font18, spacing);
-    //points_to_display = (int)cuont_points;
 
     static int last_buffer_size;
     if (oscData->dynamic_buffer_mode && oscData->points_to_display != last_buffer_size) {
