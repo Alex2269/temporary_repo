@@ -242,8 +242,8 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
 
     static bool last_dynamic_mode = false;
     if (oscData->dynamic_buffer_mode != last_dynamic_mode) {
-        int target_history_size = oscData->dynamic_buffer_mode ? oscData->points_to_display : 10000;
-        setup_channel_buffers(oscData, target_history_size);
+        oscData->points_to_display = oscData->dynamic_buffer_mode ? oscData->points_to_display : 10000;
+        setup_channel_buffers(oscData);
         last_dynamic_mode = oscData->dynamic_buffer_mode;
     }
 
