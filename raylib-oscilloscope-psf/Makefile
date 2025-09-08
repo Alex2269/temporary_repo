@@ -22,19 +22,24 @@ BUILD_CC_DIR  = $(BUILD_DIR)/ccc
 BUILD_CPP_DIR = $(BUILD_DIR)/cpp
 
 # Source files (recursively find .c, .cpp, .s files)
-ROOT_DIR = .
+# C sources
+SRC_DIR =  main
+SRC_DIR += RS-232
+SRC_DIR += gui
+SRC_DIR += psf
+SRC_DIR += osc
 
 # Detect platform and find source files
 ifeq ($(OS),Windows_NT)
   # Windows specific settings for file search (using Windows-style paths)
-  C_SOURCES   += $(shell dir /b /s $(ROOT_DIR)\\*.c)
-  CPP_SOURCES += $(shell dir /b /s $(ROOT_DIR)\\*.cpp)
-  ASM_SOURCES += $(shell dir /b /s $(ROOT_DIR)\\*.s)
+  C_SOURCES   += $(shell dir /b /s $(SRC_DIR)\\*.c)
+  CPP_SOURCES += $(shell dir /b /s $(SRC_DIR)\\*.cpp)
+  ASM_SOURCES += $(shell dir /b /s $(SRC_DIR)\\*.s)
 else
   # Unix/Linux specific settings (using find command for Unix-based systems)
-  C_SOURCES   += $(shell find ${ROOT_DIR} -name '*.c')
-  CPP_SOURCES += $(shell find ${ROOT_DIR} -name '*.cpp')
-  ASM_SOURCES += $(shell find ${ROOT_DIR} -name '*.s')
+  C_SOURCES   += $(shell find ${SRC_DIR} -name '*.c')
+  CPP_SOURCES += $(shell find ${SRC_DIR} -name '*.cpp')
+  ASM_SOURCES += $(shell find ${SRC_DIR} -name '*.s')
 endif
 
 # binaries
@@ -90,7 +95,7 @@ C_DEFS +=
 AS_INCLUDES = 
 
 # C includes
-INCDIR = .
+INCDIR =  main
 INCDIR += RS-232
 INCDIR += gui
 INCDIR += psf
