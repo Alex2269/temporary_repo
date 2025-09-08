@@ -126,7 +126,8 @@ int main(void) {
 
         ChannelSettings *Ch = &oscData.channels[oscData.active_channel];
         Rectangle scaleArea = { 1, 0, 5, 600};
-        DrawVerticalScale(1, Ch->scale_y, Ch->offset_y, scaleArea, font12, WHITE);
+        // DrawVerticalScale(1, Ch->scale_y, Ch->offset_y, scaleArea, font12, WHITE);
+        DrawVerticalScale(1, Ch->scale_y, Ch->offset_y / Ch->scale_y, scaleArea, font12, WHITE);
 
         // // Малювання горизонтальної лінії тригера (якщо тригер активний)
         // if (Ch->active && Ch->trigger_active) {
