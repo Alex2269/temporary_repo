@@ -33,4 +33,14 @@ void DrawPSFTextScaled(PSF_Font font, int x, int y, const char* text, int spacin
 // Підрахунок кількості UTF-8 символів у рядку
 int utf8_strlen(const char* s);
 
+// Функція малювання одного символу (гліфа) у позиції (x,y) кольором color
+void DrawPSFChar(PSF_Font font, int x, int y, int c, Color color);
+
+void DrawPSFCharLine(PSF_Font font, int x, int y, const char* text, int spacing, Color color);
+
+void DrawPSFTextWithInvertedBackground(PSF_Font font, int x, int y, const char* text,
+                                       int spacing, Color textColor, int padding);
+
+void DrawPSFTextScaledWithInvertedBackground(PSF_Font font, int x, int y, const char* text,
+                                             int spacing, int scale, Color textColor, int padding);
 #endif // PSF_FONT_H

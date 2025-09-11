@@ -113,14 +113,18 @@ int main(void) {
         DrawCursorsAndDistance(cursors, 2, font12, font12.height, &centerRect);
 
         // Малювання поточних значень каналів в лівому верхнньому куті осцилоскопа
-        Color channel_colors[MAX_CHANNELS] = { YELLOW, GREEN, RED, BLUE };
+        Color channel_colors[MAX_CHANNELS] = { YELLOW, GREEN, RED, SKYBLUE };
         for (int i = 0; i < MAX_CHANNELS; i++) {
             if (oscData.channels[i].active && oscData.channels[i].channel_history != NULL) {
                 float last_value = oscData.channels[i].channel_history[(oscData.history_index + oscData.history_size - 1) % oscData.history_size];
-                Vector2 textPos = {10, 10 + i*20};
-                DrawPSFText(font20, textPos.x, textPos.y,
-                            TextFormat("Ch%d: %.0f", i+1, last_value),
-                            spacing, channel_colors[i]);
+                Vector2 textPos = {82, 10 + i*32};
+                // Vector2 textPos = {100 + i*80, 10};
+                                // DrawPSFText(font20, textPos.x, textPos.y,
+                //             TextFormat("Ch%d: %.0f", i+1, last_value),
+                //             spacing, channel_colors[i]);
+                DrawPSFTextWithInvertedBackground(font20, textPos.x, textPos.y,
+                                                  TextFormat("Ch%d: %.0f", i+1, last_value),
+                                                  spacing, channel_colors[i],2);
             }
         }
 

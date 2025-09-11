@@ -1,9 +1,11 @@
 // psf_font.c
-// Підключення заголовочних файлів
-#include "psf_font.h"       // Визначення структури шрифту та прототипів функцій
-#include <stdio.h>          // Для роботи з файлами та виводу
-#include <stdlib.h>         // Для динамічного виділення пам’яті
-#include "UnicodeGlyphMap.h"// Відповідність Unicode кодів індексам гліфів
+// Реалізація роботи з PSF1/PSF2 шрифтами та їх малювання у raylib
+// Підключення необхідних заголовочних файлів
+#include "psf_font.h"       // Визначення структури PSF_Font і прототипів функцій
+#include <stdio.h>          // Для роботи з файлами (fopen, fread, fclose)
+#include <stdlib.h>         // Для динамічного виділення пам’яті (malloc, free)
+#include <string.h>         // Для роботи зі строками (strncpy, strtok)
+#include "UnicodeGlyphMap.h"// Відповідність Unicode → індекс гліфа шрифту
 
 // Магічні числа для ідентифікації форматів PSF1 і PSF2
 #define PSF1_MAGIC0 0x36
@@ -32,6 +34,19 @@ typedef struct {
     uint32_t height;         // Висота символу в пікселях
     uint32_t width;          // Ширина символу в пікселях
 } PSF2_Header;
+
+
+// Обчислення яскравості кольору (luminance)
+static float GetLuminance(Color color);
+// Вибір контрастного кольору тексту (білий або чорний)
+static Color GetContrastingTextColor(Color bgColor);
+// Функція, що змінює насиченість кольору
+static Color ChangeSaturation(Color c, float saturationScale);
+// Функція інверсії кольору.
+static Color InvertColor(Color c);
+// Функція отримання контрастного інверсного кольору
+static Color GetContrastingInvertedBackground(Color textColor);
+
 
 // Функція читання 4 байтів з файлу у форматі little-endian (молодший байт перший)
 static uint32_t ReadLE32(FILE* f) {
@@ -265,3 +280,242 @@ int utf8_strlen(const char* s) {
     }
     return len;
 }
+
+// Малює рядок тексту без масштабування з пробілами та кирилицею
+void DrawPSFCharLine(PSF_Font font, int x, int y, const char* text, int spacing, Color color) {
+    int xpos = x;
+    const char* p = text;
+    while (*p) {
+        uint32_t codepoint = 0;
+        int bytes = utf8_decode(p, &codepoint);
+        int glyph_index = UnicodeToGlyphIndex(codepoint);
+        if (glyph_index < 0) glyph_index = 32;
+        DrawPSFChar(font, xpos, y, glyph_index, color);
+        xpos += font.width + spacing;
+        p += bytes;
+    }
+}
+
+// Малює рядок тексту з масштабуванням
+void DrawPSFCharLineScaled(PSF_Font font, int x, int y, const char* text, int spacing, int scale, Color color) {
+    int xpos = x;
+    const char* p = text;
+    while (*p) {
+        uint32_t codepoint = 0;
+        int bytes = utf8_decode(p, &codepoint);
+        int glyph_index = UnicodeToGlyphIndex(codepoint);
+        if (glyph_index < 0) glyph_index = 32;
+        DrawPSFCharScaled(font, xpos, y, glyph_index, scale, color);
+        xpos += (font.width * scale) + spacing;
+        p += bytes;
+    }
+}
+
+
+// Малюємо текст з інверсним фоном (фон інвертується від кольору тексту)
+void DrawPSFTextWithInvertedBackground(PSF_Font font, int x, int y, const char* text, int spacing, Color textColor, int padding)
+{
+    const char* lines[20]; // Масив рядків тексту
+    int lineCount = 0;     // Кількість рядків
+    char tempText[512];    // Тимчасовий буфер копії тексту
+
+    // Копіюємо текст і готуємо до обробки
+    strncpy(tempText, text, sizeof(tempText) - 1);
+    tempText[sizeof(tempText) - 1] = '\0';
+
+    // Розбиваємо текст на рядки по символу '\n'
+    char* line = strtok(tempText, "\n");
+    while (line != NULL && lineCount < 20)
+    {
+        lines[lineCount++] = line;
+        line = strtok(NULL, "\n");
+    }
+
+    // Визначаємо максимальну кількість символів в рядку для розміру фону
+    int maxLineChars = 0;
+    for (int i = 0; i < lineCount; i++)
+    {
+        int len = utf8_strlen(lines[i]);
+        if (len > maxLineChars)
+            maxLineChars = len;
+    }
+
+    // Визначаємо ширину та висоту фонового прямокутника
+    float bgWidth  = maxLineChars * (font.width + spacing) - spacing + 2 * padding;
+    float bgHeight = lineCount * font.height + (lineCount - 1) * spacing + 2 * padding;
+
+    // Користуємо функцію, яка отримує контрастний інверсний колір фону з корекцією яскравості
+    Color bgColor = GetContrastingInvertedBackground(textColor);
+
+    // Малюємо фон та контур
+    DrawRectangle(x - padding, y - padding, bgWidth, bgHeight, bgColor);
+    DrawRectangleLines(x - padding, y - padding, bgWidth, bgHeight, textColor);
+
+    // Малюємо кожен рядок тексту
+    int xpos = x;
+    int ypos = y;
+    for (int i = 0; i < lineCount; i++)
+    {
+        DrawPSFCharLine(font, xpos, ypos, lines[i], spacing, textColor);
+        ypos += font.height + spacing;
+    }
+}
+
+// Аналогічна масштабована версія функції з інверсним фоном
+void DrawPSFTextScaledWithInvertedBackground(PSF_Font font, int x, int y, const char* text, int spacing, int scale, Color textColor, int padding)
+{
+    const char* lines[20];   // Массив рядків тексту
+    int lineCount = 0;       // Кількість рядків
+    char tempText[512];      // Тимчасовий буфер для копії тексту
+
+    // Копіюємо в буфер для безпечної обробки
+    strncpy(tempText, text, sizeof(tempText) - 1);
+    tempText[sizeof(tempText) - 1] = '\0';
+
+    // Розбиваємо текст на рядки '\n'
+    char* line = strtok(tempText, "\n");
+    while (line != NULL && lineCount < 20)
+    {
+        lines[lineCount++] = line;
+        line = strtok(NULL, "\n");
+    }
+
+    // Знаходимо максимальну кількість символів для розміру фону
+    int maxLineChars = 0;
+    for (int i = 0; i < lineCount; i++)
+    {
+        int len = utf8_strlen(lines[i]);
+        if (len > maxLineChars)
+            maxLineChars = len;
+    }
+
+    // Обчислюємо розміри фонового прямокутника з урахуванням масштабу та відступів
+    float bgWidth  = maxLineChars * (font.width * scale + spacing) - spacing + 2 * padding;
+    float bgHeight = lineCount * (font.height * scale) + (lineCount - 1) * spacing + 2 * padding;
+
+    // Отримуємо адаптований інверсний колір фону із контрастною корекцією
+    Color bgColor = GetContrastingInvertedBackground(textColor);
+
+    // Малюємо фон та контур
+    DrawRectangle(x - padding, y - padding, bgWidth, bgHeight, bgColor);
+    DrawRectangleLines(x - padding, y - padding, bgWidth, bgHeight, textColor);
+
+    // Малюємо по рядках масштабований текст
+    int xpos = x;
+    int ypos = y;
+    for (int i = 0; i < lineCount; i++)
+    {
+        DrawPSFCharLineScaled(font, xpos, ypos, lines[i], spacing, scale, textColor);
+        ypos += font.height * scale + spacing;
+    }
+}
+
+// Обчислення яскравості кольору (luminance), потрібно для вибору контрасту
+static float GetLuminance(Color color) {
+    float r = color.r / 255.0f;
+    float g = color.g / 255.0f;
+    float b = color.b / 255.0f;
+    return 0.2126f * r + 0.7152f * g + 0.0722f * b;
+}
+
+// Вибір білого або чорного кольору, щоб текст був контрастним до фону
+static Color GetContrastingTextColor(Color bgColor) {
+    return (GetLuminance(bgColor) > 0.5f) ? BLACK : WHITE;
+}
+
+// Зміна насиченості (saturation) кольору у HSV просторі
+static Color ChangeSaturation(Color c, float saturationScale) {
+    float r = c.r / 255.0f;
+    float g = c.g / 255.0f;
+    float b = c.b / 255.0f;
+
+    float cMax = fmaxf(r, fmaxf(g, b));
+    float cMin = fminf(r, fminf(g, b));
+    float delta = cMax - cMin;
+
+    float h = 0.0f;
+    if (delta > 0) {
+        if (cMax == r)
+            h = fmodf((g - b) / delta, 6.0f);
+        else if (cMax == g)
+            h = (b - r) / delta + 2.0f;
+        else
+            h = (r - g) / delta + 4.0f;
+        h *= 60.0f;
+        if (h < 0) h += 360.0f;
+    }
+    float s = (cMax == 0) ? 0 : delta / cMax;
+    float v = cMax;
+
+    s *= saturationScale;
+    if (s > 1.0f) s = 1.0f;
+
+    float cVal = v * s;
+    float xVal = cVal * (1 - fabsf(fmodf(h / 60.0f, 2) - 1));
+    float m = v - cVal;
+
+    Color newColor = { 0 };
+    if (h >= 0 && h < 60) {
+        newColor.r = (cVal + m) * 255;
+        newColor.g = (xVal + m) * 255;
+        newColor.b = (0 + m) * 255;
+    } else if (h >= 60 && h < 120) {
+        newColor.r = (xVal + m) * 255;
+        newColor.g = (cVal + m) * 255;
+        newColor.b = (0 + m) * 255;
+    } else if (h >= 120 && h < 180) {
+        newColor.r = (0 + m) * 255;
+        newColor.g = (cVal + m) * 255;
+        newColor.b = (xVal + m) * 255;
+    } else if (h >= 180 && h < 240) {
+        newColor.r = (0 + m) * 255;
+        newColor.g = (xVal + m) * 255;
+        newColor.b = (cVal + m) * 255;
+    } else if (h >= 240 && h < 300) {
+        newColor.r = (xVal + m) * 255;
+        newColor.g = (0 + m) * 255;
+        newColor.b = (cVal + m) * 255;
+    } else if (h >= 300 && h < 360) {
+        newColor.r = (cVal + m) * 255;
+        newColor.g = (0 + m) * 255;
+        newColor.b = (xVal + m) * 255;
+    }
+    newColor.a = c.a; // Зберігаємо прозорість
+    return newColor;
+}
+
+// Функція інверсії кольору (кольори RGB інвертуємо, альфа залишаємо)
+static Color InvertColor(Color c) {
+    Color inverted;
+    inverted.r = 255 - c.r;
+    inverted.g = 255 - c.g;
+    inverted.b = 255 - c.b;
+    inverted.a = c.a;
+    return inverted;
+}
+
+// Перевірка, чи є колір темним (яскравість нижча за 0.5)
+static int IsColorDark(Color c) {
+    return GetLuminance(c) < 0.5f;
+}
+
+// Отримання контрастного інверсного кольору для фону із коригуванням насиченості і яскравості
+static Color GetContrastingInvertedBackground(Color textColor) {
+    Color invColor = InvertColor(textColor);
+    if (IsColorDark(textColor)) {
+        // Якщо текст темний, робимо фон світлим і насиченим
+        invColor = ChangeSaturation(invColor, 0.35f);
+        invColor.r = (invColor.r + 255) / 2;
+        invColor.g = (invColor.g + 255) / 2;
+        invColor.b = (invColor.b + 255) / 2;
+    } else {
+        // Якщо текст світлий, фон темніший і менш насичений
+        invColor = ChangeSaturation(invColor, 0.65f);
+        invColor.r /= 2;
+        invColor.g /= 2;
+        invColor.b /= 2;
+    }
+    invColor.a = 255; // Фон повністю непрозорий
+    return invColor;
+}
+
