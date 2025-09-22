@@ -1,6 +1,8 @@
 // file read_usb_device.c
 
 #include "read_usb_device.h"
+#include "rs232.h"
+#include "parse_data.h"
 
 void read_usb_device(OscData *data) {
     static uint8_t buffer[PACKET_SIZE];

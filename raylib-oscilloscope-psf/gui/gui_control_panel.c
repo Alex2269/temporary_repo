@@ -11,9 +11,13 @@
 #include "slider_widget.h"
 #include "knob_gui.h"
 #include "gui_spinner.h"
+#include "setup_channel_buffers.h"
+#include "rs232.h"
 
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 extern int fontSize;       // Зовнішня змінна розміру шрифту
 extern int LineSpacing;    // Відступ між рядками тексту

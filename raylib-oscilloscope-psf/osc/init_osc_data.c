@@ -3,6 +3,7 @@
 #include "init_osc_data.h"
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 void init_osc_data(OscData *oscData) {
     oscData->comport_number = -1;

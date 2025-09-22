@@ -1,6 +1,7 @@
 #include "knob_gui.h"
 #include <math.h>
 #include <string.h>
+#include <stdio.h>
 
 #define PI 3.14159265358979323846f
 #define CHANNEL_COUNT 6

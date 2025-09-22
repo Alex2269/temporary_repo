@@ -5,6 +5,8 @@
 #include <stdio.h>          // Для роботи з файлами (fopen, fread, fclose)
 #include <stdlib.h>         // Для динамічного виділення пам’яті (malloc, free)
 #include <string.h>         // Для роботи зі строками (strncpy, strtok)
+#include <math.h>           // Для роботи з fmaxf, fminf, fmodf, fabsf
+
 #include "UnicodeGlyphMap.h"// Відповідність Unicode → індекс гліфа шрифту
 
 // Магічні числа для ідентифікації форматів PSF1 і PSF2

@@ -21,30 +21,42 @@ BUILD_APP_DIR = $(BUILD_DIR)/app
 BUILD_CC_DIR  = $(BUILD_DIR)/ccc
 BUILD_CPP_DIR = $(BUILD_DIR)/cpp
 
-# Source files (recursively find .c, .cpp, .s files)
-# C sources
-SRC_DIR =  main
-SRC_DIR += RS-232
-SRC_DIR += gui
-SRC_DIR += psf
-SRC_DIR += osc
+# Source directories
+SRC_DIRS =  main
+SRC_DIRS += RS-232
+SRC_DIRS += gui
+SRC_DIRS += psf
+SRC_DIRS += osc
 
-# Detect platform and find source files
+# Include directories
+INC_DIRS =  main
+INC_DIRS += RS-232
+INC_DIRS += gui
+INC_DIRS += psf
+INC_DIRS += osc
+
+# Find source files and include dirs cross-platform
 ifeq ($(OS),Windows_NT)
-  # Windows specific settings for file search (using Windows-style paths)
-  C_SOURCES   += $(shell dir /b /s $(SRC_DIR)\\*.c)
-  CPP_SOURCES += $(shell dir /b /s $(SRC_DIR)\\*.cpp)
-  ASM_SOURCES += $(shell dir /b /s $(SRC_DIR)\\*.s)
+  # Windows: use Powershell for find equivalent
+  C_SOURCES   = $(shell powershell -Command "Get-ChildItem -Path $(SRC_DIRS) -Recurse -Include *.c | ForEach-Object { $_.FullName }" 2>nul)
+  CPP_SOURCES = $(shell powershell -Command "Get-ChildItem -Path $(SRC_DIRS) -Recurse -Include *.cpp | ForEach-Object { $_.FullName }" 2>nul)
+  ASM_SOURCES = $(shell powershell -Command "Get-ChildItem -Path $(SRC_DIRS) -Recurse -Include *.s | ForEach-Object { $_.FullName }" 2>nul)
+  C_INC       = $(shell powershell -Command "Get-ChildItem -Path $(INC_DIRS) -Recurse -Include *.h* | ForEach-Object { $_.DirectoryName } | Sort-Object -Unique" 2>nul)
 else
-  # Unix/Linux specific settings (using find command for Unix-based systems)
-  C_SOURCES   += $(shell find ${SRC_DIR} -name '*.c')
-  CPP_SOURCES += $(shell find ${SRC_DIR} -name '*.cpp')
-  ASM_SOURCES += $(shell find ${SRC_DIR} -name '*.s')
+  # Unix/Linux
+  C_SOURCES   = $(foreach dir, $(SRC_DIRS), $(shell find $(dir) -type f -name '*.c'))
+  CPP_SOURCES = $(foreach dir, $(SRC_DIRS), $(shell find $(dir) -type f -name '*.cpp'))
+  ASM_SOURCES = $(foreach dir, $(SRC_DIRS), $(shell find $(dir) -type f -name '*.s'))
+  C_INC       = $(shell find $(INC_DIRS) -type f \( -name '*.h' -o -name '*.hpp' \) -exec dirname {} \; | sort -u)
 endif
 
-# binaries
+# Format include flags
+C_INCLUDES = $(addprefix -I,$(C_INC))
+
+# Toolchain prefix
 PREFIX =
-# Check if we are on Windows
+
+# Compiler executables
 ifeq ($(OS),Windows_NT)
   # Windows specific settings
   ifdef GCC_PATH
@@ -60,8 +72,6 @@ ifeq ($(OS),Windows_NT)
     CP  = $(PREFIX)objcopy.exe
     SZ  = $(PREFIX)size.exe
   endif
-  HEX = $(CP) -O ihex
-  BIN = $(CP) -O binary -S
 else
   # Linux/Unix specific settings
 ifdef GCC_PATH
@@ -77,32 +87,22 @@ else
   CP  = $(PREFIX)objcopy
   SZ  = $(PREFIX)size
 endif
+endif
+
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
-endif
  
 CPU = -m64
 MCU = $(CPU)
 
-# macros for gcc
-# AS defines
 AS_DEFS = 
 
 # C defines
 C_DEFS +=
 
-# AS includes
 AS_INCLUDES = 
 
-# C includes
-INCDIR =  main
-INCDIR += RS-232
-INCDIR += gui
-INCDIR += psf
-INCDIR += osc
-
-C_INC += $(foreach dir, $(INCDIR), -I $(dir))
-INCLUDE_DIRS = $(C_INC)
+ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
 # Compile flags for GCC
 WARNINGS := -Wall
@@ -111,13 +111,12 @@ GCCFLAGS += -O0 -g $(WARNINGS)
 CFLAGS_STD = -c -Os -w -std=gnu17 $(GCCFLAGS)
 CXXFLAGS_STD = -c -Os -w -std=gnu++17 $(GCCFLAGS)
 
-CFLAGS = $(MCU) $(C_DEFS) $(INCLUDE_DIRS) $(OPT) $(CFLAGS_STD)
-CFLAGS += -Wno-implicit-function-declaration
-CPPFLAGS = $(MCU) $(C_DEFS) $(INCLUDE_DIRS) $(OPT) $(CXXFLAGS_STD)
+CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) $(CFLAGS_STD) 
+CPPFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) $(CXXFLAGS_STD) 
 
 # Libraries
 LIBDIR =
-LIBS =
+LIBS  = -lc
 LIBS += -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
 # LDFLAGS setup
@@ -136,7 +135,7 @@ YELLOW=\033[1;33m
 NC=\033[0m
 ## shell color end ##
 
-# build the application
+# Object files
 OBJECTS = $(addprefix $(BUILD_CC_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
 
@@ -147,7 +146,8 @@ vpath %.cpp $(sort $(dir $(CPP_SOURCES)))
 OBJECTS += $(addprefix $(BUILD_ASM_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SOURCES)))
 
-# Compilation rules
+# Build rules
+
 $(BUILD_CC_DIR)/%.o: %.c Makefile | $(BUILD_CC_DIR)
 	@echo " ${green} [compile:] ${YELLOW} $< ${NC}"
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_CC_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
@@ -158,13 +158,14 @@ $(BUILD_CPP_DIR)/%.o: %.cpp Makefile | $(BUILD_CPP_DIR)
 
 $(BUILD_ASM_DIR)/%.o: %.s Makefile | $(BUILD_ASM_DIR)
 	@echo " ${green} [compile:] ${YELLOW} $< ${NC}"
-	$(AS) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_CC_DIR)/$(notdir $(<:.s=.lst)) $< -o $@
+	$(AS) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_ASM_DIR)/$(notdir $(<:.s=.lst)) $< -o $@
 
 $(BUILD_APP_DIR)/$(TARGET).elf: $(OBJECTS) Makefile | $(BUILD_APP_DIR)
-	@echo " ${green} [linking:] ${YELLOW} $@ ${NC} \n"
+	@echo " ${green} [linking:] ${YELLOW} $@ ${NC}"
+	@echo "\n"
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 	$(SZ) $@ --format=Berkeley
-	cp $(BUILD_APP_DIR)/$(TARGET).elf ./
+#	$(SZ) $@ --format=SysV --radix=16
 
 $(BUILD_APP_DIR)/%.hex: $(BUILD_APP_DIR)/%.elf | $(BUILD_APP_DIR)
 	$(HEX) $< $@
@@ -172,7 +173,7 @@ $(BUILD_APP_DIR)/%.hex: $(BUILD_APP_DIR)/%.elf | $(BUILD_APP_DIR)
 $(BUILD_APP_DIR)/%.bin: $(BUILD_APP_DIR)/%.elf | $(BUILD_APP_DIR)
 	$(BIN) $< $@	
 	
-# Create necessary directories
+# Create build folders
 $(BUILD_CC_DIR):
 	mkdir -p $@
 $(BUILD_CPP_DIR):
@@ -187,7 +188,6 @@ clean:
 	-rm -fR $(BUILD_DIR)
 	-rm -f $(TARGET).elf
 
-# Include dependency files
+# Dependencies
 -include $(wildcard $(BUILD_DIR)/*.d)
 
-# *** EOF ***

@@ -1,6 +1,7 @@
 // DrawVerticalScale.c
 
 #include "DrawVerticalScale.h"
+#include <stdio.h>
 
 // Функція малює вертикальну шкалу з мітками у вказаній області.
 // Параметри:

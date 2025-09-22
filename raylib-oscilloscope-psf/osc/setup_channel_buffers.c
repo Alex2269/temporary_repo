@@ -2,6 +2,7 @@
 
 #include "setup_channel_buffers.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 void setup_channel_buffers(OscData *oscData) {
     for (int i = 0; i < MAX_CHANNELS; i++) {
