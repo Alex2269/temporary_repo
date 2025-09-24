@@ -253,20 +253,7 @@ else
 	rm -rf $(BUILD_DIR)
 endif
 
-# Flash commands
-flash:
-	st-flash --reset write $(BUILD_APP_DIR)/$(TARGET).bin 0x8000000
-
-OPENOCD_FACE = interface/cmsis-dap.cfg
-OPENOCD_TAR  = target/stm32f1x.cfg
-flash_daplink:
-	openocd -f $(OPENOCD_FACE) -f $(OPENOCD_TAR) -c "set FLASH_SIZE $(FLASH_SIZE)" -c "program $(BUILD_APP_DIR)/$(TARGET).bin 0x08000000 verify reset exit"
-
-stm32flash:
-	stm32flash -w $(BUILD_APP_DIR)/$(TARGET).bin -v -g 0x0 /dev/ttyUSB0
-
 # Debug
-
 OPENOCD_SCRIPT    = sc_openocd.cfg
 GDB_PORT          = 3333
 OPENOCD_INTERFACE = interface/cmsis-dap.cfg
@@ -295,6 +282,16 @@ debug:
 	-iex "monitor halt" \
 	$(BUILD_APP_DIR)/$(TARGET).elf
 endif
+
+# Flash commands
+flash:
+	st-flash --reset write $(BUILD_APP_DIR)/$(TARGET).bin 0x8000000
+
+flash_daplink:
+	openocd -f $(OPENOCD_INTERFACE) -f $(OPENOCD_TARGET) -c "set FLASH_SIZE $(FLASH_SIZE)" -c "program $(BUILD_APP_DIR)/$(TARGET).bin 0x08000000 verify reset exit"
+
+stm32flash:
+	stm32flash -w $(BUILD_APP_DIR)/$(TARGET).bin -v -g 0x0 /dev/ttyUSB0
 
 # Dependencies
 -include $(wildcard $(BUILD_DIR)/*.d)
