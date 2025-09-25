@@ -106,37 +106,6 @@ ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffuncti
 
 # Compile flags for GCC
 WARNINGS := -Wall
-# WARNINGS += -Wextra
-# WARNINGS += -Wshadow
-# WARNINGS += -Wundef
-# WARNINGS += -Wmaybe-uninitialized
-# WARNINGS += -Wno-unused-function
-# WARNINGS += -Wno-error=strict-prototypes
-# WARNINGS += -Wno-error=cpp
-# WARNINGS += -Wno-unused-parameter
-# WARNINGS += -Wno-missing-field-initializers
-# WARNINGS += -Wno-format-nonliteral
-# WARNINGS += -Wno-cast-qual
-# WARNINGS += -Wno-switch-default
-# WARNINGS += -Wno-ignored-qualifiers
-# WARNINGS += -Wno-error=pedantic
-# WARNINGS += -Wno-sign-compare
-# WARNINGS += -Wno-error=missing-prototypes
-# WARNINGS += -Wpointer-arith -fno-strict-aliasing
-# WARNINGS += -Wuninitialized
-# WARNINGS += -Wunreachable-code
-# WARNINGS += -Wreturn-type
-# WARNINGS += -Wmultichar
-# WARNINGS += -Wformat-security
-# WARNINGS += -Wdouble-promotion
-# WARNINGS += -Wclobbered
-# WARNINGS += -Wdeprecated
-# WARNINGS += -Wempty-body
-# WARNINGS += -Wshift-negative-value
-# WARNINGS += -Wtype-limits
-# WARNINGS += -Wsizeof-pointer-memaccess
-# WARNINGS += -Wpointer-arith
-
 GCCFLAGS += -O0 -g $(WARNINGS)
 
 CFLAGS_STD = -c -Os -w -std=gnu17 $(GCCFLAGS)
