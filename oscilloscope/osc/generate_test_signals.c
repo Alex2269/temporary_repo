@@ -6,124 +6,133 @@
 
 #define PI 3.14159265359f
 
-    // oscData.offset_y_a = screenHeight / 4.0f * 2.5f + 200;
-    // oscData.offset_y_b = screenHeight / 4.0f * 3.5f + 200;
 
-        // generate_test_signals(&oscData, 500, 100);
-        // Приклад виклику
-        // draw_signal(&oscData, osc_width, 2.0f);
+#include <stdint.h>
+#include "math.h"
+#include <stddef.h>
+#include <stdlib.h>
 
-        /*
-        float current_time = 0.0f;
-        generate_test_signals(&oscData, 500, current_time);
-        current_time += 0.1f; // Збільшуємо час для наступного кадру */
+#define PACKET_SIZE 13
+#define MAX_CHANNELS 4
 
+// Структури з вашим визначенням OscData і channels мають містити channel_history як float*
 
-// void generate_test_signals(OscData *data, int history_size, float time)
-// {
-//     // Перевірка наявності буферів історії для каналів 0 і 1
-//     if (data->channels[2].channel_history == NULL || data->channels[3].channel_history == NULL) return;
+// typedef struct {
+//     float *channel_history;
+// } Channel;
 //
-//     for (int i = 0; i < history_size; i++) {
-//         float t = time + i * 0.1f;
-//         data->channels[2].channel_history[i] = 200.0f + 100.0f * sinf(t);       // Синусоїда для каналу 0 (A)
-//         data->channels[3].channel_history[i] = 200.0f + 100.0f * cosf(t * 0.5f); // Косинусоїда для каналу 1 (B)
-//     }
-// }
+// typedef struct {
+//     Channel channels[4];
+// } OscData;
 
-/*
-void generate_test_signals(OscData *data, int history_size, float time)
+// Прямокутний сигнал з частотою freq і робочим циклом duty_cycle (0..1)
+float square_wave(float t, float freq, float duty_cycle) {
+    float period = 1.0f / freq;
+    float phase = fmodf(t, period);
+    return (phase < duty_cycle * period) ? 1.0f : -1.0f;
+}
+
+// Пилкоподібний сигнал з частотою freq
+float sawtooth_wave(float t, float freq) {
+    float period = 1.0f / freq;
+    float phase = fmodf(t, period);
+    return (2.0f * (phase / period)) - 1.0f;  // від -1 до 1 лінійно
+}
+
+// Імпульсний сигнал з тривалістю pulse_width (у секундах) і частотою freq
+float pulse_wave(float t, float freq, float pulse_width) {
+    float period = 1.0f / freq;
+    float phase = fmodf(t, period);
+    return (phase < pulse_width) ? 1.0f : 0.0f;
+}
+
+float noise_wave() {
+    return 2.0f * ((float)rand() / RAND_MAX) - 1.0f;  // випадкове значення від -1 до 1
+}
+
+void generate_test_signals_extended(OscData *data, int history_size, float time)
 {
-    if (data->channels[2].channel_history == NULL || data->channels[3].channel_history == NULL) return;
-
-    for (int i = 0; i < history_size; i++) {
-        float t = time + i * 0.1f;
-
-        // Складний сигнал з гармоніками для каналу 2 (A)
-        float fundamental = sinf(t);          // основна частота
-        float second_harmonic = 0.5f * sinf(2.0f * t);  // друга гармоніка з меншою амплітудою
-        float third_harmonic = 0.3f * sinf(3.0f * t);   // третя гармоніка ще меншої амплітуди
-
-        data->channels[2].channel_history[i] = 200.0f + 100.0f * (fundamental + second_harmonic + third_harmonic);
-
-        // Для каналу 3 (B) залишимо косинусоїду, або теж можна ускладнити аналогічно
-        data->channels[3].channel_history[i] = 200.0f + 100.0f * cosf(t * 0.5f);
+    // Перевірка наявності буферів історії для всіх 4 каналів
+    for (int ch = 0; ch < 4; ch++) {
+        if (data->channels[ch].channel_history == NULL) return;
     }
-}*/
 
+    float freq = 1.0f;       // 1 Гц для прикладу
+    float duty_cycle = 0.3f; // 30% робочий цикл
+    float pulse_width = 0.05f; // 50 мс імпульс
 
-void generate_test_signals(OscData *data, int history_size, float time)
-{
-    if (data->channels[2].channel_history == NULL || data->channels[3].channel_history == NULL) return;
-
-    float decay_rate = 0.1f; // швидкість затухання
+    float val = 0.0f;
 
     for (int i = 0; i < history_size; i++) {
-        float t = time + i * 0.1f;
+        float t = time + i * 0.01f;  // крок часу
 
-        // Експоненціальне затухання амплітуди
-        float envelope = expf(-decay_rate * t);
+        // Канал 0: синусоїда з гармоніками (як раніше)
+        val = 1000.0f + 400.0f * (sinf(t) + 0.5f * sinf(3.0f * t) + 0.3f * sinf(5.0f * t));
+        data->channels[0].channel_history[i] = val / 4095 * WORKSPACE_HEIGHT;
 
-        // Складний сигнал з гармоніками для каналу 2 (A)
-        // Гармоніки з різними амплітудами
-        float fundamental = sinf(t);          // основна частота
-        float second_harmonic = 0.5f * sinf(2.0f * t);  // друга гармоніка з меншою амплітудою
-        float third_harmonic = 0.3f * sinf(3.0f * t);   // третя гармоніка ще меншої амплітуди
+        // Канал 1: квадратний сигнал
+        val = 1000.0f + 300.0f * square_wave(t, freq, duty_cycle);
+        data->channels[1].channel_history[i] = val / 4095 * WORKSPACE_HEIGHT;
 
-        // Складний затухаючий сигнал для каналу 2
-        data->channels[2].channel_history[i] = 200.0f + 100.0f * envelope * (fundamental + second_harmonic + third_harmonic);
+        // Канал 2: пилкоподібний сигнал
+        val = 1000.0f + 350.0f * sawtooth_wave(t, freq);
+        data->channels[2].channel_history[i] = val / 4095 * WORKSPACE_HEIGHT;
 
-        // Для каналу 3 залишаємо просту косинусоїду
-        data->channels[3].channel_history[i] = 200.0f + 100.0f * cosf(0.5f * t);
+        // Канал 3: імпульсний сигнал з шумом
+        float base_pulse = pulse_wave(t, freq, pulse_width);
+        float noise = 0.1f * noise_wave();
+        val = 1000.0f + 400.0f * (base_pulse + noise);
+        data->channels[3].channel_history[i] = val / 4095 * WORKSPACE_HEIGHT;
     }
 }
 
-void generate_third_order_like_signal(OscData *data, int history_size, float time)
+void update_test_signals(OscData *data, float *time, float time_step)
 {
-    if (data->channels[2].channel_history == NULL || data->channels[3].channel_history == NULL) return;
+    if (!data) return;
 
-    for (int i = 0; i < history_size; i++) {
-        float t = time + i * 0.1f;
+    int idx = data->history_index;
 
-        // Основна гармоніка — великий центральний "горб"
-        float fundamental = sinf(t);
+    float freq = 1.0f;
+    float duty_cycle = 0.3f;
+    float pulse_width = 0.05f;
+    // float WORKSPACE_HEIGHT = 550.0f;
 
-        // Друга і третя гармоніки — менші бокові "горби"
-        float second_harmonic = 0.6f * sinf(2.0f * t + PI / 4);  // з фазовим зсувом для форми
-        float third_harmonic = 0.4f * sinf(3.0f * t + PI / 2);
+    float t = *time;
+    float val = 0.0f;
 
-        // Сума гармонік формує форму сигналу з центральним піком і боковими
-        float signal = fundamental + second_harmonic + third_harmonic;
+    for (int ch = 0; ch < MAX_CHANNELS; ch++)
+    {
+        switch (ch)
+        {
+            case 0:
+                val = 1000.0f + 400.0f * (sinf(t) + 0.5f * sinf(3.0f * t) + 0.3f * sinf(5.0f * t));
+                break;
+            case 1:
+                val = 1000.0f + 300.0f * square_wave(t, freq, duty_cycle);
+                break;
+            case 2:
+                val = 1000.0f + 350.0f * sawtooth_wave(t, freq);
+                break;
+            case 3:
+            {
+                float base_pulse = pulse_wave(t, freq, pulse_width);
+                float noise = 0.1f * noise_wave();
+                val = 1000.0f + 400.0f * (base_pulse + noise);
+            }
+            break;
+            default:
+                val = 0.0f;
+                break;
+        }
 
-        // Масштабування і зміщення для зручності відображення
-        data->channels[2].channel_history[i] = 200.0f + 100.0f * signal;
+        val = val / 4095.0f * WORKSPACE_HEIGHT;
 
-        // Для каналу 3 залишимо просту косинусоїду
-        data->channels[3].channel_history[i] = 200.0f + 100.0f * cosf(0.5f * t);
+        if (val < 0) val = 0;
+        if (val > 4095) val = 4095;
+
+        data->channels[ch].channel_history[idx] = val;
     }
-}
 
-void generate_gaussian_envelope_signal(OscData *data, int history_size, float time)
-{
-    if (data->channels[2].channel_history == NULL || data->channels[3].channel_history == NULL) return;
-
-    float center_time = 10.0f;  // час центру гауссової функції
-    float sigma = 4.0f;        // ширина гауссової функції
-    float fundamental_freq = 1.0f; // основна частота сигналу
-
-    for (int i = 0; i < history_size; i++) {
-        float t = time + i * 0.1f;
-
-        // Гауссова огинаюча
-        float gaussian_envelope = expf(-powf(t - center_time, 2) / (2 * sigma * sigma));
-
-        // Синусоїда, модульована гауссовою огинаючою
-        float signal = gaussian_envelope * sinf(2 * PI * fundamental_freq * t);
-
-        // Масштабування і зміщення для зручного відображення
-        data->channels[2].channel_history[i] = 200.0f + 100.0f * signal;
-
-        // Для каналу 3 залишимо просту косинусоїду
-        data->channels[3].channel_history[i] = 200.0f + 100.0f * cosf(0.5f * t);
-    }
+    data->history_index = (idx + 1) % data->history_size;
+    *time += time_step;
 }

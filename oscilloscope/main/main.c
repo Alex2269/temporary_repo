@@ -26,12 +26,16 @@
 #include "all_font.h" // Опис шрифтів як структури RasterFont
 #include "glyphs.h"
 
-int LineSpacing = 0;
+int LineSpacing = 0; // Відступ між рядками тексту
 
 int spacing = 2; // Відступ між символами, той самий, що передається у DrawPSFText
 int scale = 1;
 int padding = 3;
 int borderThickness = 1;
+
+
+// float current_time = 0.0f;// Ініціалізація часу і кроку оновлення тестового сигналу
+// const float time_step = 0.025f; // крок часу для формування нового значення тестового сигналу
 
 int main(void) {
     const int screenWidth = 1000;
@@ -132,8 +136,10 @@ int main(void) {
         //     DrawLine((int)trigger_x_pos, 0, (int)trigger_x_pos, screenHeight, RED);
         // }
 
-        // generate_test_signals(&oscData, 500, 0.0f);
-        // draw_signal(&oscData, osc_width, 2.0f);
+        // Генерація і запис тестових сигналів у буфер історії
+        // update_test_signals(&oscData, &current_time, time_step);
+        // generate_test_signals_extended(&oscData, oscData.history_size, 2.0f);
+
         draw_signal(&oscData, osc_width, 2.0f);
 
         // gui_control_panel(&oscData, screenWidth, screenHeight);
