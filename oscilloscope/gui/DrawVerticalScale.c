@@ -16,7 +16,7 @@ void DrawVerticalScale(int channel, float scale, float offset_y, Rectangle area,
     int spacing = 2;  // Відступ тексту від рисок шкали в пікселях
     int x_end = area.x + area.width; // X координата правої межі області, де малюємо шкалу
     float centerY = area.y + area.height / 2.0f; // Y координата центру області по вертикалі
-    float margin = 10.0f; // Відступ зверху і знизу для обмеження малювання міток і тексту
+    float margin = font.glyph_height; // Відступ зверху і знизу для обмеження малювання міток і тексту
     float y_min = area.y + margin;              // Верхня межа для малювання міток
     float y_max = area.y + area.height - margin; // Нижня межа для малювання міток
 
