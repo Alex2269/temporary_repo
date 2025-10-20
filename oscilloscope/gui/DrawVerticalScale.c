@@ -16,7 +16,7 @@ void DrawVerticalScale(int channel, float scale, float offset_y, Rectangle area,
     int spacing = 2;  // Відступ тексту від рисок шкали в пікселях
     int x_end = area.x + area.width; // X координата правої межі області, де малюємо шкалу
     float centerY = area.y + area.height / 2.0f; // Y координата центру області по вертикалі
-    float margin = 50.0f; // Відступ зверху і знизу для обмеження малювання міток і тексту
+    float margin = 10.0f; // Відступ зверху і знизу для обмеження малювання міток і тексту
     float y_min = area.y + margin;              // Верхня межа для малювання міток
     float y_max = area.y + area.height - margin; // Нижня межа для малювання міток
 
@@ -26,7 +26,7 @@ void DrawVerticalScale(int channel, float scale, float offset_y, Rectangle area,
     float maxVal = offset_y + ((area.height / 2.0f - margin) / scale);
 
     // Мінімальна відстань між мітками в пікселях, щоб текст не накладався; 1.5 висоти шрифту
-    float min_label_spacing_px = font.glyph_height * 1.5f;
+    float min_label_spacing_px = font.glyph_height * 2.5f;
 
     // Діапазон значень, які треба відобразити на шкалі
     float value_range = maxVal - minVal;
@@ -38,11 +38,15 @@ void DrawVerticalScale(int channel, float scale, float offset_y, Rectangle area,
     float step_raw = value_range / labels_count;
     float step;
 
-    // Округлення кроку до "зручних" стандартних значень (25, 50, 100, 200)
+    // Округлення кроку до "зручних" стандартних значень (25, 50, 75, 100)
     if (step_raw <= 25.0f) step = 25.0f;
     else if (step_raw <= 50.0f) step = 50.0f;
+    else if (step_raw <= 75.0f) step = 75.0f;
     else if (step_raw <= 100.0f) step = 100.0f;
-    else step = 200.0f;
+    else if (step_raw <= 150.0f) step = 150.0f;
+    else if (step_raw <= 200.0f) step = 200.0f;
+    else if (step_raw <= 250.0f) step = 250.0f;
+    else step = 250.0f;
 
     // Малюємо основну вертикальну лінію шкали праворуч в межах області
     DrawLine(x_end, area.y, x_end, area.y + area.height, color);
