@@ -95,7 +95,7 @@ int main(void) {
         ClearBackground(RAYWHITE);
 
         DrawRectangle(0, 0, osc_width, osc_height, BLACK);
-        draw_grid(osc_width, osc_height);
+        draw_grid(osc_width, osc_height, 50, 49);
 
         // Малювання курсорів, ліній, ручки та тексту
         DrawCursorsAndDistance(cursors, 2, Terminus12x6_font, &centerRect);
