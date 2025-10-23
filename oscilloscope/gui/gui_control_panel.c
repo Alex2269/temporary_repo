@@ -88,7 +88,7 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
 
     int knob_radius = 45;
     // Масштабування по вертикалі
-    Gui_CamSwitch_Channel(0, Terminus12x6_font, TerminusBold18x10_font,
+    int Cam0 = Gui_CamSwitch_Channel(0, Terminus12x6_font, TerminusBold18x10_font,
                      sliderX + 65, sliderY,
                      TextFormat("Масштабування CH%d\nпо вертикалі", (int)oscData->active_channel + 1),
                      NULL/*TextFormat("%0.1f", Ch->scale_y)*/,
@@ -96,7 +96,7 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
                      &Ch->scale_y, 0.1f, 2.0f, true, activeColor);
 
     Ch->scale_y = round(Ch->scale_y / 0.1) * 0.1;
-    // printf("scale: %0.2f\n", Ch->scale_y);
+    if(Cam0) printf("scale: %0.2f\n", Ch->scale_y);
 
     // Зміщення по вертикалі
     Gui_Knob_Channel(1, Terminus12x6_font, TerminusBold18x10_font,
