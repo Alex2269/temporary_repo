@@ -96,8 +96,7 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
                      &Ch->scale_y, 0.1f, 2.0f, true, activeColor);
 
     Ch->scale_y = round(Ch->scale_y / 0.1) * 0.1;
-    printf("scale: %0.2f\n", Ch->scale_y);
-
+    // printf("scale: %0.2f\n", Ch->scale_y);
 
     // Зміщення по вертикалі
     Gui_Knob_Channel(1, Terminus12x6_font, TerminusBold18x10_font,
