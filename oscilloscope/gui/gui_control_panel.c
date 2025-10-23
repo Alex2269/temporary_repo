@@ -9,6 +9,7 @@
 // #include "slider_widget_ellipse.h"
 #include "slider_widget_circle.h"
 #include "slider_widget.h"
+#include "cam_switch.h"
 #include "knob_gui.h"
 #include "gui_spinner.h"
 #include "setup_channel_buffers.h"
@@ -18,6 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
 extern int LineSpacing;    // Відступ між рядками тексту
 extern int spacing;        // Відступ між символами, той самий, що передається у DrawPSFText
@@ -86,12 +88,16 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
 
     int knob_radius = 45;
     // Масштабування по вертикалі
-    Gui_Knob_Channel(0, Terminus12x6_font, TerminusBold18x10_font,
+    Gui_CamSwitch_Channel(0, Terminus12x6_font, TerminusBold18x10_font,
                      sliderX + 65, sliderY,
                      TextFormat("Масштабування CH%d\nпо вертикалі", (int)oscData->active_channel + 1),
                      NULL/*TextFormat("%0.1f", Ch->scale_y)*/,
                      knob_radius,
                      &Ch->scale_y, 0.1f, 2.0f, true, activeColor);
+
+    Ch->scale_y = round(Ch->scale_y / 0.1) * 0.1;
+    printf("scale: %0.2f\n", Ch->scale_y);
+
 
     // Зміщення по вертикалі
     Gui_Knob_Channel(1, Terminus12x6_font, TerminusBold18x10_font,
@@ -99,7 +105,7 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
                      "Vertical\noffset",
                      NULL/*TextFormat("%d", (int)Ch->offset_y)*/,
                      knob_radius,
-                     &Ch->offset_y, -600.0f, 600.0f, true, activeColor);
+                     &Ch->offset_y, -625.0f, 625.0f, true, activeColor);
 
     sliderY += spacingY;
 
@@ -292,10 +298,10 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
     // Gui_SliderEx(3, sliderBounds, font18, NULL, NULL, &oscData->channels[3].offset_y, 700.0f, 0.0f, true, SKYBLUE);
 
     // RegisterSlider(0, sliderBounds, &Ch->offset_y, 700.0f, 0.0f, true, WHITE, NULL, NULL);
-    RegisterSlider(0, sliderBounds, &oscData->channels[0].offset_y, 600.0f, -600.0f, true, YELLOW, NULL, NULL);
-    RegisterSlider(1, sliderBounds, &oscData->channels[1].offset_y, 600.0f, -600.0f, true, GREEN, NULL, NULL);
-    RegisterSlider(2, sliderBounds, &oscData->channels[2].offset_y, 600.0f, -600.0f, true, RED, NULL, NULL);
-    RegisterSlider(3, sliderBounds, &oscData->channels[3].offset_y, 600.0f, -600.0f, true, SKYBLUE, NULL, NULL);
+    RegisterSlider(0, sliderBounds, &oscData->channels[0].offset_y, 625.0f, -625.0f, true, YELLOW, NULL, NULL);
+    RegisterSlider(1, sliderBounds, &oscData->channels[1].offset_y, 625.0f, -625.0f, true, GREEN, NULL, NULL);
+    RegisterSlider(2, sliderBounds, &oscData->channels[2].offset_y, 625.0f, -625.0f, true, RED, NULL, NULL);
+    RegisterSlider(3, sliderBounds, &oscData->channels[3].offset_y, 625.0f, -625.0f, true, SKYBLUE, NULL, NULL);
 
     // Централізована функція, яка обробляє взаємодію і малює всі слайдери
     UpdateSlidersAndDraw(TerminusBold18x10_font, 2);
