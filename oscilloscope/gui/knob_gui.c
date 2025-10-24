@@ -99,7 +99,7 @@ static void draw_knob(RasterFont font_knob, RasterFont font_value,
 
     // Малюємо шкалу рисок і підписи значень (кожні 10%)
     for (int i = 0; i <= 100; i += 10) {
-        float tickAngleDeg = -135.0f + (i / 100.0f) * 270.0f;
+        float tickAngleDeg = -135.0f + ((float)i / 100.0f) * 270.0f;
         float tickRad = (tickAngleDeg - 90.0f) * (PI / 180.0f);
 
         float innerRadius = radius + 10;
@@ -109,7 +109,7 @@ static void draw_knob(RasterFont font_knob, RasterFont font_value,
         Vector2 end = { center.x + cosf(tickRad) * outerRadius, center.y + sinf(tickRad) * outerRadius };
         DrawLineEx(start, end, 3, colorText);
 
-        float valueAtTick = minValue + (i / 100.0f) * (maxValue - minValue);
+        float valueAtTick = minValue + ((float)i / 100.0f) * (maxValue - minValue);
         char buf[16];
         if (maxValue < 10)
             snprintf(buf, sizeof(buf), "%.1f", valueAtTick);
