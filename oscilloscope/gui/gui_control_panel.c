@@ -88,23 +88,30 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
 
     int knob_radius = 45;
     // Масштабування по вертикалі
-    int Cam0 = Gui_CamSwitch_Channel(0, Terminus12x6_font, TerminusBold18x10_font,
-                     sliderX + 65, sliderY,
-                     TextFormat("Масштабування CH%d\nпо вертикалі", (int)oscData->active_channel + 1),
-                     NULL/*TextFormat("%0.1f", Ch->scale_y)*/,
-                     knob_radius,
-                     &Ch->scale_y, 0.1f, 2.0f, true, activeColor);
+    int Cam0 = Gui_Knob_Channel(0, Terminus12x6_font, TerminusBold18x10_font,
+                                sliderX + 65, sliderY,
+                                TextFormat("Масштабування CH%d\nпо вертикалі", (int)oscData->active_channel + 1),
+                                NULL/*TextFormat("%0.1f", Ch->scale_y)*/,
+                                knob_radius,
+                                &Ch->scale_y, 0.1f, 1.10f, true, activeColor);
 
-    Ch->scale_y = round(Ch->scale_y / 0.1) * 0.1;
+    if(Cam0) Ch->scale_y = roundf(Ch->scale_y / 0.1) * 0.1;
     if(Cam0) printf("scale: %0.2f\n", Ch->scale_y);
+    // Ch->scale_y = ((int)(Ch->scale_y + 2.5f) / 5) * 5;
+    static float old_scale_y;
+    if (old_scale_y != Ch->scale_y) old_scale_y = Ch->scale_y;
 
     // Зміщення по вертикалі
-    Gui_Knob_Channel(1, Terminus12x6_font, TerminusBold18x10_font,
-                     sliderX + 234, sliderY,
-                     "Vertical\noffset",
-                     NULL/*TextFormat("%d", (int)Ch->offset_y)*/,
-                     knob_radius,
-                     &Ch->offset_y, -625.0f, 625.0f, true, activeColor);
+    int Cam1 = Gui_Knob_Channel(1, Terminus12x6_font, TerminusBold18x10_font,
+                                sliderX + 234, sliderY,
+                                "Vertical\noffset",
+                                NULL/*TextFormat("%d", (int)Ch->offset_y)*/,
+                                knob_radius,
+                                &Ch->offset_y, -625.0f, 625.0f, true, activeColor);
+
+    if(Cam1) Ch->offset_y = roundf(Ch->offset_y / 25) * 25; // кратність 25 px
+    static float old_offset_y;
+    if (old_offset_y != Ch->offset_y) old_offset_y = Ch->offset_y;
 
     sliderY += spacingY;
 
