@@ -9,7 +9,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#define WORKSPACE_HEIGHT 550
 #define MAX_CHANNELS 4
 #define PACKET_SIZE 13
 

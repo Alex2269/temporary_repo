@@ -32,11 +32,10 @@ void read_usb_device(OscData *data) {
 
                     // Масштабування сигналу до розміру сітки зі зміщенням до центру
                     static int height = 500;
-                    static int shift = 550;
-                    float scaled_a = ((float)data->adc_tmp_a / 4095) * height - shift;
-                    float scaled_b = ((float)data->adc_tmp_b / 4095) * height - shift;
-                    float scaled_c = ((float)data->adc_tmp_c / 4095) * height - shift;
-                    float scaled_d = ((float)data->adc_tmp_d / 4095) * height - shift;
+                    float scaled_a = ((float)data->adc_tmp_a / 4095) * height - WORKSPACE_HEIGHT;
+                    float scaled_b = ((float)data->adc_tmp_b / 4095) * height - WORKSPACE_HEIGHT;
+                    float scaled_c = ((float)data->adc_tmp_c / 4095) * height - WORKSPACE_HEIGHT;
+                    float scaled_d = ((float)data->adc_tmp_d / 4095) * height - WORKSPACE_HEIGHT;
 
                     if (data->channels[0].channel_history)
                         data->channels[0].channel_history[data->history_index] = scaled_a;
