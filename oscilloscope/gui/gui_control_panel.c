@@ -123,13 +123,24 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
 
     GuiControlPanelRender(oscData);
 
-    // Рівень гістерезису
-    Gui_Knob_Channel(3, Terminus12x6_font, TerminusBold18x10_font,
+    int Cam3 = Gui_Knob_Channel(3, Terminus12x6_font, TerminusBold18x10_font,
                      sliderX + 234, sliderY,
-                     "Trigger\nhysteresis",
-                     NULL/*TextFormat("%0.1f", Ch->trigger_hysteresis_px)*/,
+                     "Voltage\nvolume",
+                     NULL/*TextFormat("%0.1f", Ch->signal_level)*/,
                      knob_radius,
-                     &Ch->trigger_hysteresis_px, -1.0f, 1.0f, true, activeColor);
+                     &Ch->signal_level, 0.2f, 2.2f, true, activeColor);
+    // Додавання цього рядку перетворює регулятор на дискретний перемикач
+    if(Cam3) Ch->signal_level = roundf(Ch->signal_level / 0.1) * 0.1; // кратність 0.10f
+
+    // Рівень гістерезису
+    // Gui_Knob_Channel(4, Terminus12x6_font, TerminusBold18x10_font,
+    //                  sliderX + 234, sliderY,
+    //                  "Trigger\nhysteresis",
+    //                  NULL/*TextFormat("%0.1f", Ch->trigger_hysteresis_px)*/,
+    //                  knob_radius,
+    //                  &Ch->trigger_hysteresis_px, -1.0f, 1.0f, true, activeColor);
+
+    // Ch->trigger_hysteresis_px = 0.25f;
 
     // Малювання горизонтальної лінії тригера (якщо тригер активний)
     if (Ch->active && Ch->trigger_active) {
@@ -149,7 +160,7 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
     sliderY += spacingY;
 
     // Регулятор частоти оновлення інтерфейсу (мс)
-    Gui_Knob_Channel(4, Terminus12x6_font, TerminusBold18x10_font,
+    Gui_Knob_Channel(5, Terminus12x6_font, TerminusBold18x10_font,
                      sliderX + 65, sliderY,
                      "Refresh\nRate (ms)",
                      NULL/* TextFormat("%d", (int)oscData->refresh_rate_ms)*/,
@@ -180,7 +191,7 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
     }
 
     // Регулятор горизонтального зміщення тригера
-    Gui_Knob_Channel(5, Terminus12x6_font, TerminusBold18x10_font,
+    Gui_Knob_Channel(6, Terminus12x6_font, TerminusBold18x10_font,
                      sliderX + 234, sliderY,
                      "Trigger\noffset X",
                      NULL/*TextFormat("%d", (int)oscData->trigger_offset_x)*/,

@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 #define PI 3.14159265358979323846f
-#define CHANNEL_COUNT 6
+#define CHANNEL_COUNT 7
 
 #include "all_font.h" // Опис шрифтів як структури RasterFont
 #include "glyphs.h"

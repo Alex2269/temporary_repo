@@ -13,6 +13,7 @@ void init_osc_data(OscData *oscData) {
 
     for (int i = 0; i < MAX_CHANNELS; i++) {
         oscData->channels[i].scale_y = 1.0f;
+        oscData->channels[i].signal_level = 1.0f;
         oscData->channels[i].offset_y = 0;
         oscData->channels[0].offset_y = -200;
         oscData->channels[1].offset_y = -100;
