@@ -23,7 +23,7 @@ void read_usb_device(OscData *data) {
             buffer[buf_idx++] = byte;
             if (buf_idx == PACKET_SIZE) {
                 // Маємо повний пакет
-                uint16_t channel_values[4];
+                int16_t channel_values[4];
                 if (parse_binary_packet(buffer, channel_values) == 0) {
                     data->adc_tmp_a = channel_values[0];
                     data->adc_tmp_b = channel_values[1];

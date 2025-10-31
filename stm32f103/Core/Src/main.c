@@ -153,7 +153,7 @@ int main(void)
           // Відправляємо дані з генератора тестових сигналів
           for (int ch = 0; ch < 4; ch++)
           {
-              uint16_t val = (uint16_t)oscData.channel_history[ch][history_index];
+              int16_t val = (int16_t)oscData.channel_history[ch][history_index];
               usb_send_buf[1 + ch * 3] = ch; // ID каналу
               usb_send_buf[1 + ch * 3 + 1] = val & 0xFF; // Молодший байт
               usb_send_buf[1 + ch * 3 + 2] = (val >> 8); // Старший байт
@@ -166,12 +166,14 @@ int main(void)
       {
           // Зчитуємо актуальні значення з АЦП
           // Читання значень з каналів PA0, PA1, PA2, PA3
-          value_PA0 = Read_ADC(ADC1,0); // PA0
-          value_PA1 = Read_ADC(ADC1,1); // PA1
-          value_PA2 = Read_ADC(ADC1,2); // PA2
-          value_PA3 = Read_ADC(ADC1,3); // PA2
+          /* Інтерпретуємо дані як негативні якщо вони нижчі за 2048 (умовний нуль)
+          для центування даних на осцилоскопі */
+          value_PA0 = Read_ADC(ADC1,0) - 2048; // PA0
+          value_PA1 = Read_ADC(ADC1,1) - 2048; // PA1
+          value_PA2 = Read_ADC(ADC1,2) - 2048; // PA2
+          value_PA3 = Read_ADC(ADC1,3) - 2048; // PA2
 
-          uint16_t adc_values[4] = {value_PA0, value_PA1, value_PA2, value_PA3};
+          int16_t adc_values[4] = {value_PA0, value_PA1, value_PA2, value_PA3};
 
           for (int ch = 0; ch < 4; ch++)
           {
