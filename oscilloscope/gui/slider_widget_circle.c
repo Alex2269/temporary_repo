@@ -9,7 +9,7 @@
 #define MAX_SLIDERS 16
 
 // Радіус круглої ручки в пікселях
-#define SLIDER_KNOB_RADIUS 8
+#define SLIDER_KNOB_RADIUS 4
 
 // Зона в пікселях навколо ручки, в якій вважаємо мишу "біля ручки"
 #define CAPTURE_RADIUS 12
