@@ -1,5 +1,11 @@
 // gui_control_panel.c
 
+#include <stddef.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <math.h>
+
 #include "raylib.h"
 #include "main.h" // для OscData, MAX_CHANNELS
 #include "gui_control_panel.h"
@@ -14,16 +20,8 @@
 #include "gui_spinner.h"
 #include "setup_channel_buffers.h"
 #include "rs232.h"
-
-#include <stddef.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
-
 // #include "gui_radiobutton.h"
 #include "gui_radiobutton_row.h"
-
 #include "trigger_control.h"
 
 extern int LineSpacing;    // Відступ між рядками тексту

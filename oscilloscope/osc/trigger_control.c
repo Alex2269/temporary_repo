@@ -5,13 +5,11 @@
 #include <math.h>
 
 static Color channel_colors[MAX_CHANNELS] = { YELLOW, GREEN, RED, BLUE };
-// Статус перетягування
-static bool dragging_trigger_line = false;
-void Gui_Control_Trigger(OscData *data);
 
 void trigger_control(OscData *oscData)
 {
-    static float trigger_y_position = 0.0f;  // Початкове логічне значення
+    static bool dragging_trigger_line = false; // Статус перетягування
+    float trigger_y_position = 0.0f;  // Початкове логічне значення
     // Отримати активний канал та його налаштування
     int ch = oscData->active_channel;
     Color activeColor = channel_colors[ch];
