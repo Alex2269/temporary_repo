@@ -60,6 +60,40 @@ static void DrawGradientRing(Vector2 center, float innerRadius, float outerRadiu
     }
 }
 
+/**
+ * @brief Форматує float value у рядок buf із урахуванням напрямку діапазону.
+ *
+ * @param buf Буфер для рядка
+ * @param bufSize Розмір буфера
+ * @param value Поточне значення
+ * @param minValue Мінімальне значення діапазону
+ * @param maxValue Максимальне значення діапазону
+ */
+static void FormatKnobValue(char* buf, int bufSize, float value, float minValue, float maxValue)
+{
+    // Щоб врахувати інверсію, беремо абсолютні значення обох меж
+    float absMin = fabsf(minValue);
+    float absMax = fabsf(maxValue);
+
+    // Визначаємо більшу абсолютну межу
+    float maxAbsVal = absMin > absMax ? absMin : absMax;
+
+    // Визначаємо точність форматування
+    int precision = 0;
+
+    // Для малих діапазонів (< 10) робимо 1 знак після крапки, інакше 0
+    if (maxAbsVal < 10.0f) {
+        precision = 1;
+    }
+
+    // Формуємо строку формату, наприклад "%.1f" або "%.0f"
+    char format[8];
+    snprintf(format, sizeof(format), "%%.%df", precision);
+
+    // Формуємо кінцевий рядок із значенням
+    snprintf(buf, bufSize, format, value);
+}
+
 // Функція малювання rotary cam switch (ручки), із кольоровою шкалою та значеннями
 static void draw_camSwitch(RasterFont font_knob, RasterFont font_value,
                            int x_pos, int y_pos, float radius, float angle, float value,
@@ -104,7 +138,7 @@ static void draw_camSwitch(RasterFont font_knob, RasterFont font_value,
     // Малюємо шкалу рисок і числові мітки через кожних 10%
     for (int i = 0; i <= 100; i += 10) {
         // Кут для кожної риски (0 - 100% шкали)
-        float tickAngleDeg = -135.0f + (i / 100.0f) * 270.0f;
+        float tickAngleDeg = -135.0f + ((float)i / 100.0f) * 270.0f;
         float tickRad = (tickAngleDeg - 90.0f) * (PI / 180.0f);
 
         float innerRadius = radius + 10; // Довжина риски в напрямку назовні від ручки
@@ -116,12 +150,9 @@ static void draw_camSwitch(RasterFont font_knob, RasterFont font_value,
         DrawLineEx(start, end, 3, colorText); // Малюємо риску товщиною 3 пікселі
 
         // Обчислення значення мітки відповідно до позиції на шкалі
-        float valueAtTick = minValue + (i / 100.0f) * (maxValue - minValue);
+        float valueAtTick = minValue + ((float)i / 100.0f) * (maxValue - minValue);
         char buf[16];
-        if (maxValue < 10)
-            snprintf(buf, sizeof(buf), "%.1f", valueAtTick);
-        else
-            snprintf(buf, sizeof(buf), "%.0f", valueAtTick);
+        FormatKnobValue(buf, sizeof(buf), valueAtTick, minValue, maxValue);
 
         int charCount = utf8_strlen(buf);
 
@@ -136,7 +167,8 @@ static void draw_camSwitch(RasterFont font_knob, RasterFont font_value,
 
     // Відображення поточного числового значення rotary cam switch під ручкою
     char bufValue[32];
-    snprintf(bufValue, sizeof(bufValue), "%.1f", value);
+    FormatKnobValue(bufValue, sizeof(bufValue), value, minValue, maxValue);
+
     int charCount = utf8_strlen(bufValue);
     float lineWidth = charCount * (font_value.glyph_width + spacing) - spacing;
     float lineHeight = font_value.glyph_height;
@@ -347,15 +379,12 @@ int Gui_CamSwitch_Channel(int channel, RasterFont font_knob, RasterFont font_val
 
         // Форматування тексту мітки
         char buf[16];
-        if (maxValue < 10)
-            snprintf(buf, sizeof(buf), "%.1f", tickValue);   // Якщо max < 10 – 1 знак після коми
-            else
-                snprintf(buf, sizeof(buf), "%.0f", tickValue);   // Інакше без десяткових
+        FormatKnobValue(buf, sizeof(buf), tickValue, minValue, maxValue);// Якщо max < 10 – 1 знак після коми
 
-                int charCount = utf8_strlen(buf);
+        int charCount = utf8_strlen(buf);
 
-            // Визначаємо позицію текстової мітки на деякій відстані від риски
-            float textRadius = innerRadius + (font_knob.glyph_width * charCount) / 2 + 4;
+        // Визначаємо позицію текстової мітки на деякій відстані від риски
+        float textRadius = innerRadius + (font_knob.glyph_width * charCount) / 2 + 4;
         Vector2 textPos = { center.x + cosf(tickRad) * textRadius, center.y + sinf(tickRad) * textRadius };
 
         // Обчислення ширини тексту для центрованого розташування
