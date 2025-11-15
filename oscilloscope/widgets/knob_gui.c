@@ -73,6 +73,40 @@ static void DrawGradientRing(Vector2 center, float innerRadius, float outerRadiu
 }
 
 /**
+ * @brief Форматує float value у рядок buf із урахуванням напрямку діапазону.
+ *
+ * @param buf Буфер для рядка
+ * @param bufSize Розмір буфера
+ * @param value Поточне значення
+ * @param minValue Мінімальне значення діапазону
+ * @param maxValue Максимальне значення діапазону
+ */
+static void FormatKnobValue(char* buf, int bufSize, float value, float minValue, float maxValue)
+{
+    // Щоб врахувати інверсію, беремо абсолютні значення обох меж
+    float absMin = fabsf(minValue);
+    float absMax = fabsf(maxValue);
+
+    // Визначаємо більшу абсолютну межу
+    float maxAbsVal = absMin > absMax ? absMin : absMax;
+
+    // Визначаємо точність форматування
+    int precision = 0;
+
+    // Для малих діапазонів (< 10) робимо 1 знак після крапки, інакше 0
+    if (maxAbsVal < 10.0f) {
+        precision = 1;
+    }
+
+    // Формуємо строку формату, наприклад "%.1f" або "%.0f"
+    char format[8];
+    snprintf(format, sizeof(format), "%%.%df", precision);
+
+    // Формуємо кінцевий рядок із значенням
+    snprintf(buf, bufSize, format, value);
+}
+
+/**
  * @brief Малює регулятор (knob) із заданим кутом, значенням та кольором.
  *
  * @param font_knob Шрифт для малювання шкали та підписів
@@ -141,10 +175,8 @@ static void draw_knob(RasterFont font_knob, RasterFont font_value,
 
         float valueAtTick = minValue + ((float)i / 100.0f) * (maxValue - minValue);
         char buf[16];
-        if (maxValue < 10)
-            snprintf(buf, sizeof(buf), "%.1f", valueAtTick);
-        else
-            snprintf(buf, sizeof(buf), "%.0f", valueAtTick);
+        FormatKnobValue(buf, sizeof(buf), valueAtTick, minValue, maxValue);
+
         int charCount = utf8_strlen(buf);
 
         float textRadius = innerRadius + (font_knob.glyph_width * charCount) / 2 + 4;
@@ -156,7 +188,8 @@ static void draw_knob(RasterFont font_knob, RasterFont font_value,
 
     // Відображаємо числове значення регулятора під ним у прямокутнику
     char bufValue[32];
-    snprintf(bufValue, sizeof(bufValue), "%.1f", knobValue);
+    FormatKnobValue(bufValue, sizeof(bufValue), knobValue, minValue, maxValue);
+
     int charCount = utf8_strlen(bufValue);
     float lineWidth = charCount * (font_value.glyph_width + spacing) - spacing;
     float lineHeight = font_value.glyph_height;
