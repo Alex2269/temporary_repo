@@ -81,7 +81,7 @@ static void DrawGradientRing(Vector2 center, float innerRadius, float outerRadiu
  * @param minValue Мінімальне значення діапазону
  * @param maxValue Максимальне значення діапазону
  */
-static void FormatKnobValue(char* buf, int bufSize, float value, float minValue, float maxValue)
+static void FormatKnobLabel(char* buf, int bufSize, float value, float minValue, float maxValue)
 {
     // Щоб врахувати інверсію, беремо абсолютні значення обох меж
     float absMin = fabsf(minValue);
@@ -96,6 +96,43 @@ static void FormatKnobValue(char* buf, int bufSize, float value, float minValue,
     // Для малих діапазонів (< 10) робимо 1 знак після крапки, інакше 0
     if (maxAbsVal < 10.0f) {
         precision = 1;
+    }
+
+    // Формуємо строку формату, наприклад "%.1f" або "%.0f"
+    char format[8];
+    snprintf(format, sizeof(format), "%%.%df", precision);
+
+    // Формуємо кінцевий рядок із значенням
+    snprintf(buf, bufSize, format, value);
+}
+
+/**
+ * @brief Форматує float value у рядок buf із урахуванням напрямку діапазону.
+ *
+ * @param buf Буфер для рядка
+ * @param bufSize Розмір буфера
+ * @param value Поточне значення
+ * @param minValue Мінімальне значення діапазону
+ * @param maxValue Максимальне значення діапазону
+ */
+static void FormatKnobValue(char* buf, int bufSize, float value, float minValue, float maxValue)
+{
+    // Щоб врахувати інверсію, беремо абсолютні значення обох меж
+    float absMin = fabsf(minValue);
+    float absMax = fabsf(maxValue);
+
+    // Визначаємо більшу абсолютну межу
+    float maxAbsVal = absMin > absMax ? absMin : absMax;
+
+    // Визначаємо точність форматування
+    int precision = 0;
+
+    if (maxAbsVal < 100.0f) {
+        precision = 1;
+    }
+    // Для малих діапазонів (< 10) робимо 2 знака після крапки, інакше 0
+    if (maxAbsVal < 10.0f) {
+        precision = 2;
     }
 
     // Формуємо строку формату, наприклад "%.1f" або "%.0f"
@@ -175,7 +212,7 @@ static void draw_knob(RasterFont font_knob, RasterFont font_value,
 
         float valueAtTick = minValue + ((float)i / 100.0f) * (maxValue - minValue);
         char buf[16];
-        FormatKnobValue(buf, sizeof(buf), valueAtTick, minValue, maxValue);
+        FormatKnobLabel(buf, sizeof(buf), valueAtTick, minValue, maxValue);
 
         int charCount = utf8_strlen(buf);
 
