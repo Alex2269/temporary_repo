@@ -85,9 +85,8 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
                                 NULL/*TextFormat("%0.1f", Ch->scale_y)*/,
                                 knob_radius,
                                 &Ch->scale_y, 0.2f, 2.20f, true, activeColor);
-
     // Додавання цього рядку перетворює регулятор на дискретний перемикач
-    // if(Cam0) Ch->scale_y = roundf(Ch->scale_y / 0.1) * 0.1; // кратність 0.10f
+    if(Cam0) Ch->scale_y = roundf(Ch->scale_y / 0.02f) * 0.02f; // кратність 0.02f
 
     // Зміщення по вертикалі
     int Cam1 = Gui_Knob_Channel(1, Terminus12x6_font, TerminusBold18x10_font,
@@ -96,7 +95,6 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
                                 NULL/*TextFormat("%d", (int)Ch->offset_y)*/,
                                 knob_radius,
                                 &Ch->offset_y, 250.0f, -250.0f, true, activeColor);
-
     // Перетворюємо регулятор на дискретний перемикач
     if(Cam1) Ch->offset_y = roundf(Ch->offset_y / 5) * 5; // кратність 5 одиниць
     static float old_offset_y;
@@ -105,12 +103,14 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
     sliderY += spacingY;
 
     // Рівень тригера
-    Gui_Knob_Channel(2, Terminus12x6_font, TerminusBold18x10_font,
-                     sliderX + 65, sliderY,
-                     "Trigger\nlevel",
-                     NULL/*TextFormat("%0.1f", Ch->trigger_level)*/,
-                     knob_radius,
-                     &Ch->trigger_level, -1.0f, 1.0f, true, activeColor);
+    int Cam2 = Gui_Knob_Channel(2, Terminus12x6_font, TerminusBold18x10_font,
+                                sliderX + 65, sliderY,
+                                "Trigger\nlevel",
+                                NULL/*TextFormat("%0.1f", Ch->trigger_level)*/,
+                                knob_radius,
+                                &Ch->trigger_level, -1.0f, 1.0f, true, activeColor);
+    // Додавання цього рядку перетворює регулятор на дискретний перемикач
+    if(Cam2) Ch->trigger_level = roundf(Ch->trigger_level / 0.02f) * 0.02f; // кратність 0.02f
 
     trigger_control(oscData);
 
@@ -121,7 +121,7 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
                                 knob_radius,
                                 &Ch->signal_level, 0.2f, 2.2f, true, activeColor);
     // Додавання цього рядку перетворює регулятор на дискретний перемикач
-    // if(Cam3) Ch->signal_level = roundf(Ch->signal_level / 0.1) * 0.1; // кратність 0.10f
+    if(Cam3) Ch->signal_level = roundf(Ch->signal_level / 0.02f) * 0.02f; // кратність 0.02f
 
     // Рівень гістерезису
     // Gui_Knob_Channel(4, Terminus12x6_font, TerminusBold18x10_font,
@@ -184,7 +184,6 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
                                 NULL/*TextFormat("%d", (int)oscData->trigger_offset_x)*/,
                                 knob_radius,
                                 &oscData->trigger_offset_x, 0, 500, true, WHITE);
-
     if(Cam6) oscData->trigger_offset_x = roundf(oscData->trigger_offset_x / 5.0f) * 5.0f; // крок 5.0
     // if(Cam6) oscData->trigger_offset_x = ((int)(oscData->trigger_offset_x + 2.5f) / 5) * 5;
 
