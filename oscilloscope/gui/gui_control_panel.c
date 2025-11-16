@@ -291,8 +291,8 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
                       activeColor, Terminus12x6_font, spacing, !showButtons);
 
     int sliderWidth = 10;
-    int sliderHeight = 560;
-    Rectangle sliderBounds = { sliderX - 35, 20, sliderWidth, sliderHeight };
+    int sliderHeight = 500;
+    Rectangle sliderBounds = { sliderX - 35, 50, sliderWidth, sliderHeight };
     RegisterSlider(0, sliderBounds, &oscData->channels[0].offset_y, 250.0f, -250.0f, true, YELLOW, NULL, NULL);
     RegisterSlider(1, sliderBounds, &oscData->channels[1].offset_y, 250.0f, -250.0f, true, GREEN, NULL, NULL);
     RegisterSlider(2, sliderBounds, &oscData->channels[2].offset_y, 250.0f, -250.0f, true, RED, NULL, NULL);
@@ -304,7 +304,7 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
     Ch->offset_y = roundf(Ch->offset_y / 5.0f) * 5.0f; // кратність 5.0f
 
     // Оновлюємо та реєструємо стан слайдерів
-    Rectangle Bounds = { sliderX - 50, 20, 6, sliderHeight };
+    Rectangle Bounds = { sliderX - 50, 50, 6, sliderHeight };
     // RegisterCircleKnobSlider(0, Bounds, &Ch->scale_y, 0.2f, 2.20f, true, WHITE, NULL, NULL);
     RegisterCircleKnobSlider(0, Bounds, &oscData->channels[0].scale_y, 0.2f, 2.20f, true, YELLOW, NULL, NULL);
     RegisterCircleKnobSlider(1, Bounds, &oscData->channels[1].scale_y, 0.2f, 2.20f, true, GREEN, NULL, NULL);
