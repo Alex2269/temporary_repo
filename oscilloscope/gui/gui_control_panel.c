@@ -300,6 +300,8 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
 
     // Централізована функція, яка обробляє взаємодію і малює всі слайдери
     UpdateSlidersAndDraw(TerminusBold18x10_font, 2);
+    // Синхронізуємо активний регулятор зі слайдером (встановлює крок слайдера для активного каналу)
+    Ch->offset_y = roundf(Ch->offset_y / 5.0f) * 5.0f; // кратність 5.0f
 
     // Оновлюємо та реєструємо стан слайдерів
     Rectangle Bounds = { sliderX - 50, 20, 6, sliderHeight };
@@ -311,6 +313,8 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
 
     // Централізована функція, яка обробляє взаємодію і малює всі слайдери
     UpdateCircleKnobSlidersAndDraw(TerminusBold18x10_font, 2);
+    // Синхронізуємо активний регулятор зі слайдером (встановлює крок слайдера для активного каналу)
+    Ch->scale_y = roundf(Ch->scale_y / 0.02f) * 0.02f; // кратність 0.02f
 }
 
 void send_command(OscData *data, char* command, size_t buffer_size, int number)
