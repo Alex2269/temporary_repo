@@ -97,8 +97,6 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
                                 &Ch->offset_y, 250.0f, -250.0f, true, activeColor);
     // Перетворюємо регулятор на дискретний перемикач
     if(Cam1) Ch->offset_y = roundf(Ch->offset_y / 5) * 5; // кратність 5 одиниць
-    static float old_offset_y;
-    if (old_offset_y != Ch->offset_y) old_offset_y = Ch->offset_y;
 
     sliderY += spacingY;
 
@@ -289,7 +287,7 @@ void gui_control_panel(OscData *oscData, int screenWidth, int screenHeight) {
     Min = 250.0f, Max = -250.f;
     Gui_SliderSpinner(2, 25, 300, 10, 500, NULL, NULL,
                       &Ch->offset_y, &Min, &Max,
-                      12.5f, GUI_SPINNER_FLOAT, GUI_SPINNER_VERTICAL,
+                      5.0f, GUI_SPINNER_FLOAT, GUI_SPINNER_VERTICAL,
                       activeColor, Terminus12x6_font, spacing, !showButtons);
 
     int sliderWidth = 10;
